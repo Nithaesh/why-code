@@ -1,0 +1,25 @@
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+.venv/
+venv/
+.pytest_cache/
+
+# Local runtime data
+.whycode_cache/
+*.db
+*.sqlite
+*.sqlite3
+chroma/
+
+# Editors / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
