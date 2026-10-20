@@ -67,3 +67,62 @@ def test_history_rejects_invalid_limit(
     captured = capsys.readouterr()
     assert exit_code == 1
     assert "limit must be positive" in captured.err
+
+def test_search_command(tmp_path: Path, capsys) -> None:
+    repo = make_repo(tmp_path)
+
+    exit_code = main(
+        ["search", str(repo), "--query", "greet"]
+    )
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+    assert "hello.py" in output
+    assert "greet" in output
+    assert 'return "hello"' in output
+
+
+def test_search_command_respects_top_k(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    repo = make_repo(tmp_path)
+
+    (repo / "another.py").write_text(
+        "def greet_again():\n"
+        '    return "hello again"\n',
+        encoding="utf-8",
+    )
+
+    exit_code = main(
+        [
+            "search",
+            str(repo),
+            "--query",
+            "greet",
+            "--top-k",
+            "1",
+        ]
+    )
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+
+    # Only one search result should be printed.
+    assert "1. " in output
+    assert "2. " not in output
+
+
+def test_search_command_with_no_matches(
+    tmp_path: Path,
+    capsys,
+) -> None:
+    repo = make_repo(tmp_path)
+
+    exit_code = main(
+        ["search", str(repo), "--query", "nonexistent_xyz"]
+    )
+
+    output = capsys.readouterr().out
+    assert exit_code == 0
+    assert "No matching code found." in output

@@ -3,6 +3,7 @@ import argparse
 import json
 import sys
 
+from whycode.retrieval.service import CodebaseSearchService
 from whycode.git import GitCommitReader, GitHistoryReader
 from whycode.git.reader import GitReaderError
 from whycode.investigation import CommitInvestigationService
@@ -63,6 +64,25 @@ def build_parser() -> argparse.ArgumentParser:
     summarize_parser.add_argument(
         "--path",
         help="Filter the recent history by repository-relative path",
+    )
+    search_parser = subparsers.add_parser(
+        "search",
+        help="Search source code in a repository.",
+    )
+    search_parser.add_argument(
+        "repo",
+        help="Path to the repository to search",
+    )
+    search_parser.add_argument(
+        "--query",
+        required=True,
+        help="Keywords to search for in source code",
+    )
+    search_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=5,
+        help="Maximum number of results (default: 5)",
     )
 
     return parser
@@ -157,6 +177,34 @@ def run_summarize(args):
     )
     return 0
 
+
+def run_search(args: argparse.Namespace) -> int:
+    service = CodebaseSearchService(args.repo)
+    results = service.search(
+        query=args.query,
+        top_k=args.top_k,
+    )
+
+    if not results:
+        print("No matching code found.")
+        return 0
+
+    for index, result in enumerate(results, start=1):
+        chunk = result.chunk
+
+        print(
+            f"\n{index}. {chunk.file_path}:"
+            f"{chunk.start_line}-{chunk.end_line}"
+        )
+        print(f"   Score: {result.score:.3f}")
+        print("   " + "-" * 50)
+
+        for line in chunk.content.splitlines():
+            print(f"   {line}")
+
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -168,6 +216,8 @@ def main(argv: list[str] | None = None) -> int:
             return run_show(args)
         if args.command == "summarize":
             return run_summarize(args)
+        if args.command == "search":
+            return run_search(args)
 
         parser.error("Unknown command.")
     except (GitReaderError, CommitSummaryError, ValueError) as exc:
