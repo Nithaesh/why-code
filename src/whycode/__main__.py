@@ -145,6 +145,24 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum number of hotspots to display (default: 10)",
     )
 
+    investigate_parser = subparsers.add_parser(
+        "investigate",
+        help="Run an autonomous, multi-step code investigation agent across AST, Git, and search.",
+    )
+    investigate_parser.add_argument("repo", help="Path to repository")
+    investigate_parser.add_argument(
+        "--query",
+        "-q",
+        required=True,
+        help="Diagnostic or archaeological question to investigate",
+    )
+    investigate_parser.add_argument(
+        "--max-steps",
+        type=int,
+        default=3,
+        help="Maximum agentic reasoning/tool-execution iterations (default: 3)",
+    )
+
     return parser
 
 
@@ -188,7 +206,6 @@ def run_show(args: argparse.Namespace) -> int:
         print("\nWARNING: Diff was truncated by the configured character limit.")
 
     return 0
-
 
 
 def run_summarize(args):
@@ -370,9 +387,6 @@ def run_ask(args: argparse.Namespace) -> int:
     return 0
 
 
-
-
-
 def run_symbol(args: argparse.Namespace) -> int:
     from whycode.graph.service import CodeGraphService
 
@@ -434,6 +448,55 @@ def run_churn(args: argparse.Namespace) -> int:
 
     return 0
 
+
+def run_investigate(args: argparse.Namespace) -> int:
+    from whycode.agent import InvestigationAgent, InvestigationToolbox
+    from whycode.config import Settings
+    from whycode.llm.cache import DiskCache
+    from whycode.llm.client import CachedLLM
+    from whycode.llm.gemini import GeminiProvider
+
+    settings = Settings()
+    provider = GeminiProvider(
+        api_key=settings.require_gemini_key(),
+        model=settings.gemini_model,
+    )
+    cache = DiskCache(settings.whycode_cache_dir)
+    llm = CachedLLM(
+        provider=provider,
+        cache=cache,
+        provider_name=settings.whycode_provider,
+        model=settings.gemini_model,
+    )
+
+    toolbox = InvestigationToolbox(repo_path=args.repo)
+    agent = InvestigationAgent(llm=llm, toolbox=toolbox, max_iterations=args.max_steps)
+
+    def on_step(step_name: str, state):
+        if step_name == "plan":
+            hypo_count = len(state.plan.hypotheses) if state.plan else 0
+            sym_count = len(state.plan.target_symbols) if state.plan else 0
+            query_count = len(state.plan.target_queries) if state.plan else 0
+            print(
+                f"[Plan Formulated] {hypo_count} hypotheses, "
+                f"{sym_count} target symbols, {query_count} initial queries."
+            )
+        elif step_name == "execute_tools":
+            print(
+                f"[Step {state.iteration + 1}/{state.max_iterations} - Tools Executed] "
+                f"{len(state.evidence)} evidence items collected."
+            )
+        elif step_name == "evaluate":
+            suff = "Sufficient" if (state.sufficiency and state.sufficiency.is_sufficient) else "Insufficient (iterating)"
+            print(f"[Step {state.iteration}/{state.max_iterations} - Reflection] {suff}.")
+        elif step_name == "synthesize":
+            print("Synthesizing final diagnostic report...\n")
+
+    report = agent.investigate(query=args.query, on_step=on_step)
+    print(report.raw_markdown)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -453,6 +516,8 @@ def main(argv: list[str] | None = None) -> int:
             return run_symbol(args)
         if args.command == "churn":
             return run_churn(args)
+        if args.command == "investigate":
+            return run_investigate(args)
 
         parser.error("Unknown command.")
     except (GitReaderError, CommitSummaryError, ValueError) as exc:
