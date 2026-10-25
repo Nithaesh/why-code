@@ -52,3 +52,36 @@ whycode/
 
 4. **Retrieval Evaluation Subsystem (`eval/`):**
    - Benchmark dataset measuring Hit@1, Hit@3, Hit@5, and Mean Reciprocal Rank (MRR).
+
+
+## Grounded Hybrid RAG & Verification Architecture (Phase 5)
+
+```
+User Question
+    │
+    ▼
+CodebaseSearchService (Hybrid: Lexical BM25 + Persistent Vector Index)
+    │
+    ▼
+Candidate Chunks (Top-K)
+    │
+    ▼
+ContextDistiller
+    ├─ Merges adjacent/overlapping chunks from the same file into unified line spans
+    └─ Enforces context size ceiling (max_context_chars)
+    │
+    ▼
+CachedLLM (using code_qa.md prompt)
+    ├─ Untrusted repository evidence context framing
+    └─ Generation with zero temperature
+    │
+    ▼
+CitationVerifier
+    ├─ Extracts cited sources ([Source N], file.py:start-end)
+    ├─ Cross-references against distilled evidence spans
+    ├─ Detects hallucinated files or out-of-bound line ranges
+    └─ Computes Grounding Confidence Score
+    │
+    ▼
+QuestionAnswer Model (Answer + Sources + Verified Citations + Grounding Confidence)
+```
