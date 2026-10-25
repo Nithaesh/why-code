@@ -85,6 +85,27 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum number of results (default: 5)",
     )
 
+    ask_parser = subparsers.add_parser(
+        "ask",
+        help="Ask a question about a repository using the configured LLM.",
+    )
+    ask_parser.add_argument(
+        "repo",
+        help="Path to the repository to investigate",
+    )
+    ask_parser.add_argument(
+        "--question",
+        required=True,
+        help="Question to answer using repository code",
+    )
+    ask_parser.add_argument(
+        "--top-k",
+        type=int,
+        default=5,
+        help="Maximum number of code chunks to retrieve (default: 5)",
+    )
+
+
     return parser
 
 
@@ -205,6 +226,54 @@ def run_search(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_ask(args: argparse.Namespace) -> int:
+    from whycode.config import Settings
+    from whycode.llm.cache import DiskCache
+    from whycode.llm.client import CachedLLM
+    from whycode.llm.gemini import GeminiProvider
+    from whycode.retrieval.qa import QuestionAnsweringService
+
+    settings = Settings()
+
+    provider = GeminiProvider(
+        api_key=settings.require_gemini_key(),
+        model=settings.gemini_model,
+    )
+
+    cache = DiskCache(settings.whycode_cache_dir)
+
+    llm = CachedLLM(
+        provider=provider,
+        cache=cache,
+        provider_name=settings.whycode_provider,
+        model=settings.gemini_model,
+    )
+
+    service = QuestionAnsweringService(
+        repo_path=args.repo,
+        llm=llm,
+    )
+
+    result = service.ask(
+        question=args.question,
+        top_k=args.top_k,
+    )
+
+    print(f"Question: {result.question}")
+    print(f"\nAnswer:\n{result.answer}")
+
+    if result.sources:
+        print("\nSources:")
+        for source in result.sources:
+            print(
+                f"  - {source.file_path}:"
+                f"{source.start_line}-{source.end_line}"
+            )
+
+    return 0
+
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -218,6 +287,8 @@ def main(argv: list[str] | None = None) -> int:
             return run_summarize(args)
         if args.command == "search":
             return run_search(args)
+        if args.command == "ask":
+            return run_ask(args)
 
         parser.error("Unknown command.")
     except (GitReaderError, CommitSummaryError, ValueError) as exc:
