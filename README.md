@@ -2,7 +2,7 @@
 
 WhyCode investigates Git history and repository source code to answer why and how code changed, with evidence-backed commit and source citations.
 
-## Capabilities (Phases 0–5)
+## Capabilities (Phases 0–6)
 
 1. **LLM Abstraction & Response Caching (Phase 0):**
    - Provider-independent `BaseLLM` interface returning typed `LLMResult`.
@@ -38,6 +38,13 @@ WhyCode investigates Git history and repository source code to answer why and ho
    - Post-generation citation verification (`CitationVerifier`): parses LLM citations (`[Source N]`, `file.py:lines`), validates them against retrieved source blocks, flags hallucinations, and computes a grounding confidence score.
    - Prompt injection hardening using externalized prompt template `src/whycode/prompts/code_qa.md`.
    - Enhanced CLI `ask` command reporting grounding verification status and confidence ratings.
+
+7. **Repository Structure & Git-History Association (Phase 6):**
+   - AST-based symbol parsing (`ASTSymbolParser`) extracting Python classes, functions, methods, parameters, and calls using standard library `ast`.
+   - Code dependency graph (`CodebaseGraph`) indexing definitions, callers, callees, and module-level imports.
+   - Symbol Git churn tracking (`SymbolChurnTracker`) correlating code symbols to the exact Git commits that modified their line spans.
+   - Hotspot analysis (`CodeGraphService`) identifying the most frequently modified components across the codebase.
+   - CLI commands: `symbol` and `churn`.
 
 ---
 
@@ -91,7 +98,16 @@ python eval\eval_retrieval.py --live
 
 ## CLI Usage
 
-### 1. Codebase Question Answering (Grounded Hybrid RAG)
+### 1. Codebase Structure & Git Churn (Phase 6)
+```powershell
+# Inspect a symbol's definition, callers, callees, and Git revision history:
+python -m whycode symbol . --name DiskCache
+
+# Rank the top 10 most frequently modified code symbols across Git history:
+python -m whycode churn . --limit 10
+```
+
+### 2. Codebase Question Answering (Grounded Hybrid RAG)
 ```powershell
 # Default hybrid RAG with citation verification:
 python -m whycode ask . --question "How does WhyCode extract git commit evidence?"
@@ -103,7 +119,7 @@ python -m whycode ask . --question "How does DiskCache build cache keys?" --mode
 python -m whycode ask . --question "Where are sensitive file filters defined?" --mode semantic
 ```
 
-### 2. Search Codebase
+### 3. Search Codebase
 ```powershell
 # Lexical search (default):
 python -m whycode search . --query "DiskCache"
@@ -115,7 +131,7 @@ python -m whycode search . --query "how does response caching work" --mode hybri
 python -m whycode search . --query "sensitive file filters" --mode semantic
 ```
 
-### 3. Git History & Commit Summarization
+### 4. Git History & Commit Summarization
 ```powershell
 # List recent commits:
 python -m whycode history . --limit 5
