@@ -2,7 +2,11 @@
 
 WhyCode investigates Git history and repository source code to answer why and how code changed, with evidence-backed commit and source citations.
 
-## Capabilities (Phases 0–6)
+Designed as an educational and production-grade GenAI engineering platform for deep software archaeology.
+
+---
+
+## Capabilities Overview (Phases 0–9)
 
 1. **LLM Abstraction & Response Caching (Phase 0):**
    - Provider-independent `BaseLLM` interface returning typed `LLMResult`.
@@ -14,7 +18,7 @@ WhyCode investigates Git history and repository source code to answer why and ho
    - Structured commit summarization validating evidence against actual diffs and flagging uncertainty.
    - CLI commands: `history`, `show`, `summarize`.
 
-3. **Repository Intelligence (Phase 2):**
+3. **Repository Intelligence & Chunking (Phase 2):**
    - Deterministic repository scanning with file size limits, binary detection, and sensitive file exclusion.
    - Traceable source code chunking with overlapping line windows and stable content hashes.
    - Fast lexical search with BM25-style keyword scoring, regex-based definition boosting, and CamelCase/snake_case tokenization.
@@ -30,51 +34,96 @@ WhyCode investigates Git history and repository source code to answer why and ho
    - Lightweight, embedded vector store using Python's standard `sqlite3` + `numpy` for chunk metadata and cosine similarity.
    - Change-aware synchronization (`IndexSynchronizer`): tracks SHA-256 content hashes, only re-indexing modified/added files and pruning deleted ones.
    - Hybrid retrieval fusing Lexical and Dense Vector search via Reciprocal Rank Fusion (RRF).
-   - Automated retrieval evaluation benchmark (`eval/eval_retrieval.py`) measuring Hit@1, Hit@3, Hit@5, and Mean Reciprocal Rank (MRR).
 
 6. **Grounded Hybrid RAG & Citation Verification (Phase 5):**
    - Connects persistent hybrid retrieval directly to the question-answering pipeline.
    - Context distillation (`ContextDistiller`): merges overlapping/adjacent chunks into unified line spans and enforces context character budgets.
    - Post-generation citation verification (`CitationVerifier`): parses LLM citations (`[Source N]`, `file.py:lines`), validates them against retrieved source blocks, flags hallucinations, and computes a grounding confidence score.
-   - Prompt injection hardening using externalized prompt template `src/whycode/prompts/code_qa.md`.
-   - Enhanced CLI `ask` command reporting grounding verification status and confidence ratings.
 
 7. **Repository Structure & Git-History Association (Phase 6):**
    - AST-based symbol parsing (`ASTSymbolParser`) extracting Python classes, functions, methods, parameters, and calls using standard library `ast`.
    - Code dependency graph (`CodebaseGraph`) indexing definitions, callers, callees, and module-level imports.
    - Symbol Git churn tracking (`SymbolChurnTracker`) correlating code symbols to the exact Git commits that modified their line spans.
-   - Hotspot analysis (`CodeGraphService`) identifying the most frequently modified components across the codebase.
    - CLI commands: `symbol` and `churn`.
 
+8. **Stateful Agentic Investigation Workflows (Phase 7):**
+   - Multi-hop diagnostic investigation agent (`InvestigationAgent`) that formulates hypotheses, executes tools across AST graphs, vector search, and Git commit diffs, reflects on evidence sufficiency, and synthesizes grounded diagnostic reports.
+   - Bounded execution guardrails (`max_iterations` cap) preventing runaway loops or token costs.
+   - CLI command: `investigate`.
+
+9. **Developer REST API & Interactive Server (Phase 8):**
+   - Asynchronous FastAPI application (`whycode.api`) exposing all capabilities over typed REST endpoints (`/health`, `/search`, `/ask`, `/symbol`, `/churn`, `/investigate`).
+   - OpenAPI Swagger documentation available at `/docs` and `/redoc`.
+   - CLI command: `serve`.
+
+10. **System Evaluation & Security Audit Hardening (Phase 9):**
+    - End-to-end evaluation harness (`eval/eval_system.py`) measuring Hit@K, MRR, citation verification precision, and agent multi-hop convergence.
+    - Security audit test suite (`tests/test_security_audit.py`) validating prompt injection isolation, subprocess argument escaping, and API boundary protections.
+
 ---
 
-## Requirements
+## Architecture Flow
 
-- Python 3.11
-- Git (on system `PATH`)
-- Optional: A Google Gemini API key for live generation and embeddings
-
----
-
-## Setup (Windows PowerShell)
-
-```powershell
-cd D:\Nithaesh\Programming\whycode
-py -3.11 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-pip install -e .
-Copy-Item .env.example .env
+```
+                      ┌────────────────────────────────────────┐
+                      │          User Query / REST API         │
+                      └───────────────────┬────────────────────┘
+                                          │
+                  ┌───────────────────────┴───────────────────────┐
+                  ▼                                               ▼
+       [Single-Turn RAG: `ask`]                     [Multi-Hop Agent: `investigate`]
+                  │                                               │
+                  │                                  ┌────────────┴────────────┐
+                  │                                  ▼                         ▼
+                  │                           Plan & Hypothesize         Reflect & Evaluate
+                  │                                  │                         ▲
+                  ├──────────────────────────────────┼─────────────────────────┤
+                  ▼                                  ▼                         │
+          [Hybrid Retriever]                 [Codebase AST Graph]       [Git Commit Reader]
+          - BM25 Lexical                     - Callers & Callees        - Unified Diffs
+          - SQLite Dense Vector              - Definitions              - Commit History
+          - Reciprocal Rank Fusion           - Symbol Churn             - Churn Hotspots
+                  │                                  │                         │
+                  └──────────────────────────────────┼─────────────────────────┘
+                                                     ▼
+                                            [Context Distillation]
+                                            - Chunk merging & budget
+                                                     ▼
+                                            [LLM Generation]
+                                            - GeminiProvider / CachedLLM
+                                                     ▼
+                                          [Citation Verification]
+                                          - Hallucination detection
+                                          - Grounding confidence score
+                                                     ▼
+                                            [Grounded Report / JSON]
 ```
 
-If running live LLM or embedding calls, edit `.env` and set `GEMINI_API_KEY`. Never commit `.env` to Git.
+---
+
+## Setup & Installation
+
+```powershell
+# 1. Clone repository and navigate to root
+cd D:\Nithaesh\Programming\whycode
+
+# 2. Activate virtual environment
+.\.venv\Scripts\Activate.ps1
+
+# 3. Install dependencies
+pip install -r requirements.txt
+pip install -e .
+
+# 4. Optional: Configure Gemini API Key for live LLM / embeddings
+Copy-Item .env.example .env
+# Edit .env and supply GEMINI_API_KEY if making live API calls
+```
 
 ---
 
-## Running Automated Tests
+## Running the Automated Test Suite
 
-All tests run completely offline with fake providers and require zero network access, API keys, or quota:
+All tests run **100% offline** with zero external network access, API keys, or quota charges using `FakeLLM` and `FakeEmbedder`:
 
 ```powershell
 python -m pytest -v
@@ -82,63 +131,54 @@ python -m pytest -v
 
 ---
 
-## Running Retrieval Evaluation Benchmark
+## Running System Evaluations
 
-Evaluate Lexical, Semantic (Vector), and Hybrid retrieval on the curated benchmark dataset:
+Execute the automated benchmark across retrieval accuracy (MRR, Hit@K), citation verification fidelity, and agentic multi-hop resolution:
 
 ```powershell
-# Fast offline evaluation using deterministic pseudo-embeddings:
-python eval\eval_retrieval.py
-
-# Optional: Live evaluation using Gemini embeddings (requires GEMINI_API_KEY in .env):
-python eval\eval_retrieval.py --live
+python eval\eval_system.py
 ```
+
+Results are saved to `eval/results/system_benchmark.json`.
 
 ---
 
-## CLI Usage
+## CLI Reference
 
-### 1. Codebase Structure & Git Churn (Phase 6)
+### 1. Agentic Multi-Hop Investigation (Phase 7)
 ```powershell
-# Inspect a symbol's definition, callers, callees, and Git revision history:
-python -m whycode symbol . --name DiskCache
-
-# Rank the top 10 most frequently modified code symbols across Git history:
-python -m whycode churn . --limit 10
+whycode investigate . -q "Why did token validation change and what callers were affected?" --max-steps 3
 ```
 
-### 2. Codebase Question Answering (Grounded Hybrid RAG)
+### 2. REST API Server (Phase 8)
 ```powershell
-# Default hybrid RAG with citation verification:
-python -m whycode ask . --question "How does WhyCode extract git commit evidence?"
-
-# Lexical mode:
-python -m whycode ask . --question "How does DiskCache build cache keys?" --mode lexical
-
-# Semantic vector mode:
-python -m whycode ask . --question "Where are sensitive file filters defined?" --mode semantic
+whycode serve . --host 127.0.0.1 --port 8000
+# Open http://127.0.0.1:8000/docs for Swagger UI
 ```
 
-### 3. Search Codebase
+### 3. Codebase Q&A with Citation Verification (Phase 3 & 5)
 ```powershell
-# Lexical search (default):
-python -m whycode search . --query "DiskCache"
-
-# Hybrid search (combines keywords + persistent semantic vectors):
-python -m whycode search . --query "how does response caching work" --mode hybrid
-
-# Semantic vector search:
-python -m whycode search . --query "sensitive file filters" --mode semantic
+whycode ask . --question "How does DiskCache construct cache keys?" --mode hybrid
 ```
 
-### 4. Git History & Commit Summarization
+### 4. Code Search (Phase 2 & 4)
 ```powershell
-# List recent commits:
-python -m whycode history . --limit 5
+whycode search . --query "make_key" --mode hybrid --top-k 5
+```
 
-# Show raw git evidence for HEAD:
-python -m whycode show . --commit HEAD
+### 5. AST Symbol Inspection & Call Graph (Phase 6)
+```powershell
+whycode symbol . --name DiskCache
+```
 
-# Generate structured AI commit summary:
-python -m whycode summarize . --commit HEAD
+### 6. Git Churn Hotspots (Phase 6)
+```powershell
+whycode churn . --limit 10
+```
+
+### 7. Commit Summarization & History (Phase 1)
+```powershell
+whycode history . --limit 5
+whycode show . --commit HEAD
+whycode summarize . --commit HEAD
 ```

@@ -71,6 +71,46 @@
       "query": "QuestionAnsweringService grounding answers on repository evidence",
       "category": "conceptual",
       "expected_file": "src/whycode/retrieval/qa.py"
+    },
+    {
+      "id": "q13",
+      "query": "ASTSymbolParser extracting functions classes and call graphs",
+      "category": "structural",
+      "expected_file": "src/whycode/graph/ast_parser.py"
+    },
+    {
+      "id": "q14",
+      "query": "InvestigationAgent stateful multi-hop code diagnostic loop",
+      "category": "conceptual",
+      "expected_file": "src/whycode/agent/orchestrator.py"
+    }
+  ],
+  "qa_cases": [
+    {
+      "id": "qa1",
+      "question": "How does DiskCache construct cache keys to guarantee determinism?",
+      "expected_file": "src/whycode/llm/cache.py",
+      "expected_keywords": ["hashlib", "sha256", "canonical", "json"]
+    },
+    {
+      "id": "qa2",
+      "question": "What AST node types are tracked by ASTSymbolParser?",
+      "expected_file": "src/whycode/graph/ast_parser.py",
+      "expected_keywords": ["FunctionDef", "AsyncFunctionDef", "ClassDef"]
+    }
+  ],
+  "investigation_cases": [
+    {
+      "id": "inv1",
+      "query": "Why was SQLite used for vector indexing and how are embeddings stored?",
+      "target_symbols": ["VectorIndex"],
+      "expected_file": "src/whycode/retrieval/index.py"
+    },
+    {
+      "id": "inv2",
+      "query": "How does CitationVerifier detect hallucinated file citations?",
+      "target_symbols": ["CitationVerifier"],
+      "expected_file": "src/whycode/retrieval/verifier.py"
     }
   ]
 }
