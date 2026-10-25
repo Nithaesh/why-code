@@ -84,6 +84,17 @@ def build_parser() -> argparse.ArgumentParser:
         default=5,
         help="Maximum number of results (default: 5)",
     )
+    search_parser.add_argument(
+        "--mode",
+        choices=["lexical", "hybrid", "semantic"],
+        default="lexical",
+        help="Retrieval mode: lexical (default), hybrid, or semantic",
+    )
+    search_parser.add_argument(
+        "--reindex",
+        action="store_true",
+        help="Force a complete re-index of the repository",
+    )
 
     ask_parser = subparsers.add_parser(
         "ask",
@@ -200,10 +211,40 @@ def run_summarize(args):
 
 
 def run_search(args: argparse.Namespace) -> int:
-    service = CodebaseSearchService(args.repo)
+    mode = getattr(args, "mode", "lexical")
+    embedder = None
+
+    if mode in ("hybrid", "semantic"):
+        from whycode.config import Settings
+        from whycode.llm.embedding import CachedEmbedder, GeminiEmbedder
+
+        settings = Settings()
+        api_key = settings.gemini_api_key.get_secret_value().strip()
+        if api_key:
+            try:
+                raw_embedder = GeminiEmbedder(
+                    api_key=api_key,
+                    model=settings.gemini_embedding_model,
+                )
+                embedder = CachedEmbedder(
+                    embedder=raw_embedder,
+                    cache_dir=settings.whycode_cache_dir,
+                    provider_name=settings.whycode_provider,
+                    model_name=settings.gemini_embedding_model,
+                )
+            except Exception:
+                embedder = None
+
+        if embedder is None:
+            # Fall back to lexical if no embedder is available
+            mode = "lexical"
+
+    service = CodebaseSearchService(args.repo, embedder=embedder)
     results = service.search(
         query=args.query,
         top_k=args.top_k,
+        mode=mode,
+        force_sync=getattr(args, "reindex", False),
     )
 
     if not results:

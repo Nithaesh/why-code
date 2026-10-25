@@ -13,6 +13,7 @@ venv/
 
 # Local runtime data
 .whycode_cache/
+.whycode_index/
 *.db
 *.sqlite
 *.sqlite3
