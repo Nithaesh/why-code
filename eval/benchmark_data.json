@@ -1,0 +1,76 @@
+{
+  "queries": [
+    {
+      "id": "q1",
+      "query": "DiskCache make_key canonical representation",
+      "category": "identifier",
+      "expected_file": "src/whycode/llm/cache.py"
+    },
+    {
+      "id": "q2",
+      "query": "how does response caching work in this project",
+      "category": "conceptual",
+      "expected_file": "src/whycode/llm/cache.py"
+    },
+    {
+      "id": "q3",
+      "query": "RepositoryScanner excluded directories and sensitive files",
+      "category": "identifier",
+      "expected_file": "src/whycode/ingest/scanner.py"
+    },
+    {
+      "id": "q4",
+      "query": "filtering environment variables and secret files during repository scan",
+      "category": "conceptual",
+      "expected_file": "src/whycode/ingest/scanner.py"
+    },
+    {
+      "id": "q5",
+      "query": "CodeChunker overlap_lines and max_lines configuration",
+      "category": "identifier",
+      "expected_file": "src/whycode/ingest/chunker.py"
+    },
+    {
+      "id": "q6",
+      "query": "splitting source code into overlapping line numbered chunks",
+      "category": "conceptual",
+      "expected_file": "src/whycode/ingest/chunker.py"
+    },
+    {
+      "id": "q7",
+      "query": "GitCommitReader timeout and diff truncation guard",
+      "category": "identifier",
+      "expected_file": "src/whycode/git/reader.py"
+    },
+    {
+      "id": "q8",
+      "query": "extracting commit hash author date and diff evidence from git",
+      "category": "conceptual",
+      "expected_file": "src/whycode/git/reader.py"
+    },
+    {
+      "id": "q9",
+      "query": "retrying on gemini rate limit HTTP 429 backoff",
+      "category": "conceptual",
+      "expected_file": "src/whycode/llm/gemini.py"
+    },
+    {
+      "id": "q10",
+      "query": "Pydantic settings loading from environment variables",
+      "category": "structural",
+      "expected_file": "src/whycode/config.py"
+    },
+    {
+      "id": "q11",
+      "query": "formatting retrieved chunks into labeled evidence context for LLM",
+      "category": "conceptual",
+      "expected_file": "src/whycode/retrieval/context.py"
+    },
+    {
+      "id": "q12",
+      "query": "QuestionAnsweringService grounding answers on repository evidence",
+      "category": "conceptual",
+      "expected_file": "src/whycode/retrieval/qa.py"
+    }
+  ]
+}

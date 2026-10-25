@@ -16,8 +16,10 @@ class Settings(BaseSettings):
 
     gemini_api_key: SecretStr = Field(default=SecretStr(""), alias="GEMINI_API_KEY")
     gemini_model: str = Field(default="gemini-3.8-flash", alias="GEMINI_MODEL")
+    gemini_embedding_model: str = Field(default="gemini-embedding-001", alias="GEMINI_EMBEDDING_MODEL")
     whycode_provider: str = Field(default="gemini", alias="WHYCODE_PROVIDER")
     whycode_cache_dir: Path = Field(default=Path(".whycode_cache"), alias="WHYCODE_CACHE_DIR")
+    whycode_index_dir: Path = Field(default=Path(".whycode_index"), alias="WHYCODE_INDEX_DIR")
     whycode_temperature: float = Field(default=0.0, ge=0.0, le=2.0, alias="WHYCODE_TEMPERATURE")
 
     def require_gemini_key(self) -> str:
