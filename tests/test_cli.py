@@ -126,3 +126,16 @@ def test_search_command_with_no_matches(
     output = capsys.readouterr().out
     assert exit_code == 0
     assert "No matching code found." in output
+
+
+def test_ask_command_parser_supports_mode_flag() -> None:
+    from whycode.__main__ import build_parser
+
+    parser = build_parser()
+    args = parser.parse_args(["ask", ".", "--question", "how does caching work?", "--mode", "hybrid", "--top-k", "3"])
+
+    assert args.command == "ask"
+    assert args.repo == "."
+    assert args.question == "how does caching work?"
+    assert args.mode == "hybrid"
+    assert args.top_k == 3

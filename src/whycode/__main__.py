@@ -115,6 +115,12 @@ def build_parser() -> argparse.ArgumentParser:
         default=5,
         help="Maximum number of code chunks to retrieve (default: 5)",
     )
+    ask_parser.add_argument(
+        "--mode",
+        choices=["hybrid", "lexical", "semantic"],
+        default="hybrid",
+        help="Retrieval mode: hybrid (default), lexical, or semantic",
+    )
 
 
     return parser
@@ -271,6 +277,7 @@ def run_ask(args: argparse.Namespace) -> int:
     from whycode.config import Settings
     from whycode.llm.cache import DiskCache
     from whycode.llm.client import CachedLLM
+    from whycode.llm.embedding import CachedEmbedder, GeminiEmbedder
     from whycode.llm.gemini import GeminiProvider
     from whycode.retrieval.qa import QuestionAnsweringService
 
@@ -290,14 +297,35 @@ def run_ask(args: argparse.Namespace) -> int:
         model=settings.gemini_model,
     )
 
+    mode = getattr(args, "mode", "hybrid")
+    embedder = None
+    if mode in ("hybrid", "semantic"):
+        api_key = settings.gemini_api_key.get_secret_value().strip()
+        if api_key:
+            try:
+                raw_embedder = GeminiEmbedder(
+                    api_key=api_key,
+                    model=settings.gemini_embedding_model,
+                )
+                embedder = CachedEmbedder(
+                    embedder=raw_embedder,
+                    cache_dir=settings.whycode_cache_dir,
+                    provider_name=settings.whycode_provider,
+                    model_name=settings.gemini_embedding_model,
+                )
+            except Exception:
+                embedder = None
+
     service = QuestionAnsweringService(
         repo_path=args.repo,
         llm=llm,
+        embedder=embedder,
     )
 
     result = service.ask(
         question=args.question,
         top_k=args.top_k,
+        mode=mode,
     )
 
     print(f"Question: {result.question}")
@@ -310,6 +338,12 @@ def run_ask(args: argparse.Namespace) -> int:
                 f"  - {source.file_path}:"
                 f"{source.start_line}-{source.end_line}"
             )
+
+    if result.verified_citations:
+        print(f"\nGrounding Confidence: {result.grounding_confidence * 100:.1f}%")
+        for cit in result.verified_citations:
+            status = "VERIFIED" if cit.is_verified else "UNVERIFIED"
+            print(f"  [{status}] {cit.raw_citation} -> {cit.reason}")
 
     return 0
 

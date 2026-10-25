@@ -2,7 +2,7 @@
 
 WhyCode investigates Git history and repository source code to answer why and how code changed, with evidence-backed commit and source citations.
 
-## Capabilities (Phases 0–4)
+## Capabilities (Phases 0–5)
 
 1. **LLM Abstraction & Response Caching (Phase 0):**
    - Provider-independent `BaseLLM` interface returning typed `LLMResult`.
@@ -31,6 +31,13 @@ WhyCode investigates Git history and repository source code to answer why and ho
    - Change-aware synchronization (`IndexSynchronizer`): tracks SHA-256 content hashes, only re-indexing modified/added files and pruning deleted ones.
    - Hybrid retrieval fusing Lexical and Dense Vector search via Reciprocal Rank Fusion (RRF).
    - Automated retrieval evaluation benchmark (`eval/eval_retrieval.py`) measuring Hit@1, Hit@3, Hit@5, and Mean Reciprocal Rank (MRR).
+
+6. **Grounded Hybrid RAG & Citation Verification (Phase 5):**
+   - Connects persistent hybrid retrieval directly to the question-answering pipeline.
+   - Context distillation (`ContextDistiller`): merges overlapping/adjacent chunks into unified line spans and enforces context character budgets.
+   - Post-generation citation verification (`CitationVerifier`): parses LLM citations (`[Source N]`, `file.py:lines`), validates them against retrieved source blocks, flags hallucinations, and computes a grounding confidence score.
+   - Prompt injection hardening using externalized prompt template `src/whycode/prompts/code_qa.md`.
+   - Enhanced CLI `ask` command reporting grounding verification status and confidence ratings.
 
 ---
 
@@ -84,7 +91,19 @@ python eval\eval_retrieval.py --live
 
 ## CLI Usage
 
-### 1. Search Codebase
+### 1. Codebase Question Answering (Grounded Hybrid RAG)
+```powershell
+# Default hybrid RAG with citation verification:
+python -m whycode ask . --question "How does WhyCode extract git commit evidence?"
+
+# Lexical mode:
+python -m whycode ask . --question "How does DiskCache build cache keys?" --mode lexical
+
+# Semantic vector mode:
+python -m whycode ask . --question "Where are sensitive file filters defined?" --mode semantic
+```
+
+### 2. Search Codebase
 ```powershell
 # Lexical search (default):
 python -m whycode search . --query "DiskCache"
@@ -94,11 +113,6 @@ python -m whycode search . --query "how does response caching work" --mode hybri
 
 # Semantic vector search:
 python -m whycode search . --query "sensitive file filters" --mode semantic
-```
-
-### 2. Ask Codebase Questions (RAG)
-```powershell
-python -m whycode ask . --question "How does WhyCode extract git commit evidence?"
 ```
 
 ### 3. Git History & Commit Summarization
