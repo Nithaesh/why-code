@@ -45,7 +45,7 @@ export const FAQ: React.FC = () => {
     <section id="faq" className="py-24 border-b border-white/[0.06] relative">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 relative z-10">
         <div className="text-center max-w-2xl mx-auto mb-16 space-y-4">
-          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300 text-xs font-mono">
+          <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full border border-cyan-400/20 bg-cyan-400/[0.05] text-cyan-300 text-xs font-mono">
             <HelpCircle className="w-3.5 h-3.5" />
             <span>Frequently Asked Questions</span>
           </div>
@@ -57,13 +57,13 @@ export const FAQ: React.FC = () => {
           </p>
         </div>
 
-        <div className="space-y-3.5">
+        <div className="space-y-3">
           {faqs.map((faq, idx) => {
             const isOpen = openIndex === idx
             return (
               <div
                 key={idx}
-                className="glass-panel rounded-3xl border border-white/[0.08] transition-all duration-200 overflow-hidden shadow-lg"
+                className="glass-panel rounded-2xl border border-white/[0.08] transition-all duration-200 overflow-hidden"
               >
                 <button
                   type="button"
@@ -73,7 +73,7 @@ export const FAQ: React.FC = () => {
                   <span className="text-base sm:text-lg font-medium text-white">{faq.question}</span>
                   <div
                     className={`w-8 h-8 rounded-full border border-white/10 flex items-center justify-center shrink-0 text-slate-400 transition-transform duration-300 ${
-                      isOpen ? 'rotate-180 text-purple-300 border-purple-500/40 bg-purple-500/10' : ''
+                      isOpen ? 'rotate-180 text-cyan-300 border-cyan-400/40 bg-cyan-400/10' : ''
                     }`}
                   >
                     <ChevronDown className="w-4 h-4" />

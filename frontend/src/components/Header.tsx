@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FolderGit2, GitBranch, ArrowRight, RefreshCw, CheckCircle2, Bell, Sparkles } from 'lucide-react'
+import { FolderGit2, GitBranch, ArrowRight, RefreshCw, CheckCircle2 } from 'lucide-react'
 
 interface HeaderProps {
   currentRepo: string
@@ -28,7 +28,7 @@ export const Header: React.FC<HeaderProps> = ({
     setSuccessMsg(null)
     try {
       await onCloneRepo(urlInput.trim())
-      setSuccessMsg('Switched repository successfully!')
+      setSuccessMsg(`Switched repository successfully!`)
       setTimeout(() => {
         setModalOpen(false)
         setUrlInput('')
@@ -41,161 +41,140 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#070810]/85 border-b border-white/[0.07] transition-all">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between gap-4">
-          {/* Logo & Brand matching reference image */}
-          <div
-            className="flex items-center space-x-3 cursor-pointer group"
-            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          >
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-fuchsia-500 to-indigo-500 p-[1px] shadow-lg shadow-purple-500/25">
-              <div className="w-full h-full bg-[#0B0D18] rounded-[15px] flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
-              </div>
+      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[#07090E]/80 border-b border-white/[0.06] transition-all">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          {/* Logo & Brand */}
+          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-400 via-sky-400 to-blue-600 flex items-center justify-center font-mono font-black text-black shadow-md shadow-cyan-500/20 text-base tracking-tighter">
+              W
             </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="font-bold tracking-tight text-white text-base">WhyCode</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-300">
-                  v0.1.0
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-400 font-mono tracking-wide">
-                AI CODEBASE ARCHAEOLOGY
-              </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-semibold tracking-tight text-white text-base">WhyCode</span>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full border border-white/10 bg-white/[0.04] text-slate-400">
+                v0.1.0
+              </span>
             </div>
           </div>
 
-          {/* Center Navigation Links */}
-          <nav className="hidden md:flex items-center space-x-7 text-xs font-medium text-slate-400">
-            <a href="#overview" className="hover:text-purple-300 transition-colors">
-              Overview
-            </a>
-            <button
-              onClick={onNavigateToWorkbench}
-              className="hover:text-purple-300 transition-colors cursor-pointer"
-            >
-              Workbench
-            </button>
-            <a href="#how-it-works" className="hover:text-purple-300 transition-colors">
-              How It Works
-            </a>
-            <a href="#features" className="hover:text-purple-300 transition-colors">
-              Architecture
-            </a>
-            <a href="#faq" className="hover:text-purple-300 transition-colors">
-              FAQ
+          {/* Center Navigation Links (Apple/Google Style) */}
+          <nav className="hidden md:flex items-center space-x-8 text-xs font-medium text-slate-400">
+            <a href="#how-it-works" className="hover:text-white transition-colors">How It Works</a>
+            <a href="#features" className="hover:text-white transition-colors">Architecture</a>
+            <a href="#workbench" onClick={onNavigateToWorkbench} className="hover:text-cyan-400 transition-colors">Live Workbench</a>
+            <a href="#faq" className="hover:text-white transition-colors">FAQ</a>
+            <a href="/docs" target="_blank" className="hover:text-white transition-colors flex items-center space-x-1">
+              <span>Swagger API</span>
+              <span className="text-[10px] text-cyan-400">↗</span>
             </a>
           </nav>
 
-          {/* Right Action Controls */}
-          <div className="flex items-center space-x-3">
-            {/* Active Repository Pill */}
+          {/* Right Controls: Active Repo & Live Cloner */}
+          <div className="flex items-center space-x-3 text-xs font-mono">
+            {/* Active Repo Chip */}
             <button
               onClick={() => setModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-xl border border-purple-500/20 bg-purple-950/20 hover:border-purple-500/40 text-slate-200 hover:text-white transition-all flex items-center space-x-2 text-xs font-mono shadow-sm shadow-purple-950/40 cursor-pointer"
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 text-slate-300 hover:text-white transition-all cursor-pointer group"
+              title="Click to switch or clone another GitHub repository"
             >
-              <FolderGit2 className="w-3.5 h-3.5 text-purple-400" />
-              <span className="max-w-[130px] truncate text-purple-200">{currentRepo}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-purple-500/20 text-purple-300">Switch</span>
+              <FolderGit2 className="w-3.5 h-3.5 text-cyan-400 group-hover:rotate-12 transition-transform" />
+              <span className="font-medium truncate max-w-[140px]">{currentRepo || 'whycode'}</span>
+              <span className="text-[10px] text-slate-500 group-hover:text-cyan-400 transition-colors">▾</span>
             </button>
 
-            {/* Model status pill with glowing dot */}
-            <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-white/[0.08] bg-[#0E111F]/80 text-xs font-mono">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <span className="text-slate-300">{modelName}</span>
+            {/* Model Status Dot */}
+            <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-black/40 border border-white/[0.06]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span className="text-[11px] text-slate-400">{modelName || 'gemini-3.5-flash-lite'}</span>
             </div>
-
-            {/* Notification / docs icon */}
-            <a
-              href="/docs"
-              target="_blank"
-              rel="noreferrer"
-              title="FastAPI Swagger Documentation"
-              className="w-9 h-9 rounded-xl border border-white/[0.08] bg-[#0E111F]/80 hover:border-purple-500/40 hover:text-purple-300 text-slate-400 flex items-center justify-center transition-all cursor-pointer"
-            >
-              <Bell className="w-4 h-4" />
-            </a>
           </div>
         </div>
       </header>
 
-      {/* GitHub Clone / Switch Repository Modal */}
+      {/* GitHub Repo Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="glass-panel w-full max-w-lg p-7 rounded-3xl border border-purple-500/30 space-y-5 relative overflow-hidden shadow-2xl shadow-purple-950/50 animate-in fade-in zoom-in-95 duration-200">
-            <div className="absolute top-0 right-0 w-60 h-60 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
-
-            <div className="flex items-center justify-between relative z-10">
-              <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-300">
-                  <GitBranch className="w-4 h-4" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-white text-base">Load Any GitHub Repository</h3>
-                  <p className="text-[11px] text-slate-400">Shallow clones and hot-swaps active AST indices</p>
-                </div>
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+          <div className="glass-panel max-w-lg w-full p-6 rounded-2xl border border-white/10 space-y-4 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-3">
+              <div className="flex items-center space-x-2">
+                <GitBranch className="w-4 h-4 text-cyan-400" />
+                <h3 className="font-semibold text-white text-sm">Analyze Any GitHub Repository</h3>
               </div>
               <button
                 onClick={() => setModalOpen(false)}
-                className="w-7 h-7 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 flex items-center justify-center text-xs transition-colors cursor-pointer"
+                className="text-slate-500 hover:text-white transition-colors text-sm cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
+            <p className="text-slate-400 text-xs leading-relaxed">
+              WhyCode will shallow-clone the repository into local memory, extract its Python AST symbol graph, index its code chunks, and enable instant grounded Q&A and multi-hop investigations.
+            </p>
+
+            <form onSubmit={handleSubmit} className="space-y-4 pt-1">
               <div>
-                <label className="block text-xs font-mono text-purple-300 mb-1.5">
-                  GitHub Repository Clone URL:
-                </label>
+                <label className="block text-[11px] font-mono text-slate-400 mb-1">GitHub Repository URL:</label>
                 <input
                   type="text"
                   required
                   value={urlInput}
                   onChange={(e) => setUrlInput(e.target.value)}
                   placeholder="https://github.com/pallets/flask"
-                  className="w-full bg-[#05060C] border border-white/10 rounded-xl px-4 py-2.5 text-xs sm:text-sm font-mono text-white placeholder-slate-500 focus:outline-none focus:border-purple-400 transition-colors"
+                  className="w-full bg-[#05080F] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs font-mono text-slate-100 placeholder-slate-600 focus:outline-none focus:border-cyan-400 transition-colors"
                 />
               </div>
 
+              {/* Quick Select Presets */}
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] font-mono text-slate-500">Popular:</span>
+                {['https://github.com/pallets/flask', 'https://github.com/psf/requests', 'https://github.com/tiangolo/fastapi'].map(
+                  (sample) => (
+                    <button
+                      key={sample}
+                      type="button"
+                      onClick={() => setUrlInput(sample)}
+                      className="text-[10px] px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-cyan-500/10 border border-white/10 text-slate-300 font-mono transition-colors cursor-pointer"
+                    >
+                      {sample.split('/').pop()}
+                    </button>
+                  )
+                )}
+              </div>
+
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-mono">
+                <div className="p-3 rounded-xl text-xs font-mono bg-rose-500/10 text-rose-300 border border-rose-500/30">
                   {errorMsg}
                 </div>
               )}
 
               {successMsg && (
-                <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono flex items-center space-x-2">
+                <div className="p-3 rounded-xl text-xs font-mono bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 flex items-center space-x-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   <span>{successMsg}</span>
                 </div>
               )}
 
-              <div className="flex items-center justify-end space-x-3 pt-2">
+              <div className="flex justify-end space-x-3 pt-2">
                 <button
                   type="button"
                   onClick={() => setModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white cursor-pointer transition-colors"
+                  className="px-4 py-2 rounded-xl text-xs text-slate-400 hover:text-white transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={cloneLoading || !urlInput.trim()}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-400 hover:to-indigo-400 text-white font-semibold text-xs transition-all shadow-lg shadow-purple-500/25 disabled:opacity-50 cursor-pointer flex items-center space-x-2"
+                  className="px-5 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-semibold text-xs transition-all disabled:opacity-50 flex items-center space-x-1.5 cursor-pointer shadow-md shadow-cyan-400/20"
                 >
                   {cloneLoading ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Cloning Tree...</span>
+                      <span>Cloning & Indexing...</span>
                     </>
                   ) : (
                     <>
-                      <span>Clone & Index</span>
+                      <span>Clone & Analyze</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
