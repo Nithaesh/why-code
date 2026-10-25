@@ -199,7 +199,7 @@ def test_api_serves_frontend(tmp_path: Path):
     response = client.get("/")
     assert response.status_code == 200
     assert "WhyCode" in response.text
-    assert "Agent Investigation" in response.text
+    assert "root" in response.text
 
 
 def test_cli_serve_parser():

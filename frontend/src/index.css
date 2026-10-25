@@ -1,0 +1,95 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --bg-primary: #080c14;
+    --bg-card: #0e1422;
+    --bg-card-hover: #131b2e;
+    --accent: #00f0ff;
+    --accent-dim: rgba(0, 240, 255, 0.12);
+    --border: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(0, 240, 255, 0.3);
+  }
+
+  body {
+    background-color: var(--bg-primary);
+    color: #f1f5f9;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    overflow-x: hidden;
+  }
+}
+
+/* Custom Glassmorphism Card */
+.glass-panel {
+  background: radial-gradient(circle at 50% 0%, rgba(20, 30, 50, 0.6) 0%, rgba(14, 20, 34, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.14);
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #080c14;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e293b;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Prose Markdown Typography */
+.prose h1, .prose h2, .prose h3 {
+  color: #38bdf8;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+.prose p {
+  line-height: 1.7;
+  color: #cbd5e1;
+  margin-bottom: 0.75rem;
+}
+.prose ul {
+  list-style-type: disc;
+  padding-left: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: #cbd5e1;
+}
+.prose li {
+  margin-bottom: 0.35rem;
+}
+.prose code {
+  background: rgba(0, 240, 255, 0.08);
+  color: #38bdf8;
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.35rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.85em;
+  border: 1px solid rgba(0, 240, 255, 0.2);
+}
+.prose pre {
+  background: #05080f !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.prose pre code {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: #e2e8f0 !important;
+}

@@ -3,15 +3,21 @@
 from __future__ import annotations
 
 import logging
+from pathlib import Path
+import re
+import subprocess
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
 
+from whycode.agent import InvestigationAgent, InvestigationToolbox
 from whycode.api.schemas import (
     AskRequest,
     AskResponse,
     ChurnHotspotItem,
     ChurnHotspotsResponse,
     CitationVerificationItem,
+    CloneRepoRequest,
+    CloneRepoResponse,
     CodeChunkItem,
     HealthResponse,
     InvestigateRequest,
@@ -25,6 +31,9 @@ from whycode.api.schemas import (
     SymbolDetailResponse,
     SymbolHistoryItem,
 )
+from whycode.graph.service import CodeGraphService
+from whycode.retrieval.qa import QuestionAnsweringService
+from whycode.retrieval.service import CodebaseSearchService
 
 logger = logging.getLogger(__name__)
 
@@ -52,6 +61,103 @@ def health_check(services: dict[str, Any] = Depends(get_services)) -> HealthResp
         provider=provider,
         model=model,
         has_api_key=has_api_key,
+    )
+
+
+@router.post("/repo/clone", response_model=CloneRepoResponse)
+def clone_and_switch_repo(
+    payload: CloneRepoRequest,
+    request: Request,
+    services: dict[str, Any] = Depends(get_services),
+) -> CloneRepoResponse:
+    """Clone any GitHub repository and dynamically switch WhyCode to analyze it."""
+    url = payload.url.strip()
+    # Basic URL sanitation
+    if not (url.startswith("https://") or url.startswith("git@")):
+        raise HTTPException(status_code=400, detail="Invalid Git repository URL. Must start with https:// or git@.")
+
+    # Derive repository name
+    match = re.search(r"/([^/]+?)(?:\.git)?$", url)
+    if not match:
+        raise HTTPException(status_code=400, detail="Could not parse repository name from URL.")
+    repo_name = match.group(1)
+
+    # Store in .whycode_repos directory
+    settings = services.get("settings")
+    base_dir = (settings.whycode_cache_dir.parent / ".whycode_repos") if settings else (Path.cwd() / ".whycode_repos")
+    base_dir.mkdir(parents=True, exist_ok=True)
+    target_dir = base_dir / repo_name
+
+    try:
+        if target_dir.exists() and (target_dir / ".git").exists():
+            # Pull latest changes if already cloned
+            subprocess.run(
+                ["git", "-C", str(target_dir), "pull"],
+                capture_output=True,
+                check=False,
+                timeout=30,
+            )
+        else:
+            # Clone repo shallowly for speed
+            cmd = ["git", "clone", "--depth", "50"]
+            if payload.branch:
+                cmd.extend(["--branch", payload.branch])
+            cmd.extend([url, str(target_dir)])
+
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=90)
+            if result.returncode != 0:
+                raise RuntimeError(f"Git clone failed: {result.stderr}")
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="Git clone operation timed out.")
+    except Exception as exc:
+        logger.exception("Failed to clone repository: %s", exc)
+        raise HTTPException(status_code=500, detail=f"Failed to clone repository: {exc}")
+
+    # Re-initialize services for the new repository path
+    active_llm = services.get("llm")
+    embedder = services.get("embedder")
+
+    search_service = CodebaseSearchService(repo_path=target_dir, embedder=embedder)
+    graph_service = CodeGraphService(repo_path=target_dir)
+    toolbox = InvestigationToolbox(
+        repo_path=target_dir,
+        search_service=search_service,
+        graph_service=graph_service,
+    )
+
+    qa_service = None
+    if active_llm is not None:
+        qa_service = QuestionAnsweringService(
+            repo_path=target_dir,
+            llm=active_llm,
+            embedder=embedder,
+            search_service=search_service,
+        )
+
+    def agent_factory(max_steps: int = 3) -> InvestigationAgent:
+        if active_llm is None:
+            raise RuntimeError("LLM is required for agentic investigation.")
+        return InvestigationAgent(
+            llm=active_llm,
+            toolbox=toolbox,
+            max_iterations=max_steps,
+        )
+
+    # Dynamically hot-swap active services on the running application
+    request.app.state.services.update({
+        "repo_path": target_dir,
+        "search_service": search_service,
+        "graph_service": graph_service,
+        "toolbox": toolbox,
+        "qa_service": qa_service,
+        "agent_factory": agent_factory,
+    })
+
+    return CloneRepoResponse(
+        status="ok",
+        repo_name=repo_name,
+        repo_path=str(target_dir),
+        message=f"Successfully loaded {repo_name}. WhyCode is now investigating {repo_name}!",
     )
 
 
