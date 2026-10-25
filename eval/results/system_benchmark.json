@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-10-25 18:57:40",
+  "total_benchmark_queries": 14,
+  "retrieval_performance": {
+    "lexical": {
+      "hit_at_1": 0.9286,
+      "hit_at_3": 1.0,
+      "hit_at_5": 1.0,
+      "mrr": 0.9643,
+      "avg_latency_ms": 455.42
+    },
+    "hybrid": {
+      "hit_at_1": 0.0714,
+      "hit_at_3": 0.3571,
+      "hit_at_5": 0.7143,
+      "mrr": 0.2488,
+      "avg_latency_ms": 685.71
+    }
+  },
+  "citation_verification": {
+    "verified_citation_accuracy": 1.0,
+    "hallucination_detection_rate": 1.0,
+    "grounding_confidence_sample": 1.0
+  },
+  "agentic_investigation": {
+    "steps_executed": [
+      "plan",
+      "execute_tools",
+      "evaluate",
+      "synthesize"
+    ],
+    "converged": true,
+    "citations_extracted": 9,
+    "has_executive_summary": true,
+    "has_root_causes": true,
+    "has_timeline": true
+  },
+  "status": "PASSED"
+}
