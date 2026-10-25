@@ -1,7 +1,7 @@
 # Secrets
 .env
 .env.*
-!.env.example
+! .env.example
 
 # Python
 __pycache__/
@@ -14,10 +14,15 @@ venv/
 # Local runtime data
 .whycode_cache/
 .whycode_index/
+.whycode_repos/
 *.db
 *.sqlite
 *.sqlite3
 chroma/
+
+# Node / Frontend
+frontend/node_modules/
+frontend/dist/
 
 # Editors / OS
 .vscode/

@@ -192,6 +192,16 @@ def test_api_validation_errors(tmp_path: Path):
     assert resp.status_code == 422
 
 
+def test_api_serves_frontend(tmp_path: Path):
+    app = create_app(repo_path=tmp_path)
+    client = TestClient(app)
+
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "WhyCode" in response.text
+    assert "root" in response.text
+
+
 def test_cli_serve_parser():
     parser = build_parser()
     args = parser.parse_args(["serve", "/my/repo", "--host", "0.0.0.0", "--port", "9000"])

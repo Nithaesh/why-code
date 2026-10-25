@@ -48,3 +48,12 @@ def test_cache_key_changes_when_generation_parameters_change() -> None:
     first = DiskCache.make_key("gemini", "model", "prompt", None, 0.0, None)
     second = DiskCache.make_key("gemini", "model", "prompt", None, 0.7, None)
     assert first != second
+
+
+def test_cached_llm_accepts_system_instruction_alias(tmp_path: Path) -> None:
+    provider = FakeLLM()
+    llm = CachedLLM(provider, DiskCache(tmp_path), "fake", "fake-model")
+
+    res = llm.generate("test prompt", system_instruction="System prompt via alias")
+    assert res.text == "fake answer 1"
+

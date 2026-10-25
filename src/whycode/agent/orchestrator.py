@@ -130,7 +130,7 @@ class InvestigationAgent:
         try:
             result = self.llm.generate(
                 prompt=rendered_prompt,
-                system_instruction="You are a precise software archaeology planner. Output valid JSON.",
+                system="You are a precise software archaeology planner. Output valid JSON.",
             )
             data = _extract_json_payload(result.text)
         except Exception as exc:
@@ -221,7 +221,7 @@ class InvestigationAgent:
         try:
             result = self.llm.generate(
                 prompt=rendered_prompt,
-                system_instruction="You are an evidence evaluation judge. Output valid JSON.",
+                system="You are an evidence evaluation judge. Output valid JSON.",
             )
             data = _extract_json_payload(result.text)
         except Exception as exc:
@@ -271,7 +271,7 @@ class InvestigationAgent:
         try:
             result = self.llm.generate(
                 prompt=rendered_prompt,
-                system_instruction="You are WhyCode. Synthesize a grounded software investigation report.",
+                system="You are WhyCode. Synthesize a grounded software investigation report.",
             )
             raw_markdown = result.text.strip()
         except Exception as exc:

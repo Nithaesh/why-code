@@ -15,6 +15,18 @@ class HealthResponse(BaseModel):
     has_api_key: bool
 
 
+class CloneRepoRequest(BaseModel):
+    url: str = Field(..., min_length=5, description="Git clone URL or GitHub repository URL")
+    branch: str | None = Field(default=None, description="Optional branch or tag name")
+
+
+class CloneRepoResponse(BaseModel):
+    status: str
+    repo_name: str
+    repo_path: str
+    message: str
+
+
 class SearchRequest(BaseModel):
     query: str = Field(..., min_length=1, description="Keywords or query text to search for")
     top_k: int = Field(default=5, ge=1, le=50, description="Maximum number of code chunks to return")

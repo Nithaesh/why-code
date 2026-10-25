@@ -35,11 +35,14 @@ class GeminiProvider(BaseLLM):
         system: str | None = None,
         temperature: float = 0.0,
         response_schema: dict[str, Any] | None = None,
+        system_instruction: str | None = None,
+        **kwargs: Any,
     ) -> LLMResult:
         """Generate text; retry rate limits up to three times with backoff."""
+        effective_system = system or system_instruction
         config_kwargs: dict[str, Any] = {"temperature": temperature}
-        if system:
-            config_kwargs["system_instruction"] = system
+        if effective_system:
+            config_kwargs["system_instruction"] = effective_system
         if response_schema:
             config_kwargs["response_mime_type"] = "application/json"
             config_kwargs["response_schema"] = response_schema
