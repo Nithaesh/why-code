@@ -122,6 +122,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Retrieval mode: hybrid (default), lexical, or semantic",
     )
 
+    symbol_parser = subparsers.add_parser(
+        "symbol",
+        help="Inspect a code symbol's definition, callers, and Git history.",
+    )
+    symbol_parser.add_argument("repo", help="Path to repository")
+    symbol_parser.add_argument(
+        "--name",
+        required=True,
+        help="Name of class, function, or method",
+    )
+
+    churn_parser = subparsers.add_parser(
+        "churn",
+        help="Identify code churn hotspots across Git history.",
+    )
+    churn_parser.add_argument("repo", help="Path to repository")
+    churn_parser.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Maximum number of hotspots to display (default: 10)",
+    )
 
     return parser
 
@@ -349,6 +371,69 @@ def run_ask(args: argparse.Namespace) -> int:
 
 
 
+
+
+def run_symbol(args: argparse.Namespace) -> int:
+    from whycode.graph.service import CodeGraphService
+
+    service = CodeGraphService(args.repo)
+    result = service.inspect_symbol(args.name)
+
+    if not result.definitions:
+        print(f"Symbol '{args.name}' was not found in the codebase.")
+        return 0
+
+    print(f"=== Symbol: {args.name} ===\n")
+    print("Definitions:")
+    for d in result.definitions:
+        print(f"  - [{d.kind}] {d.qualified_name} in {d.file_path}:{d.start_line}-{d.end_line}")
+        if d.parameters:
+            print(f"    Parameters: ({', '.join(d.parameters)})")
+        if d.docstring:
+            print(f"    Docstring: {d.docstring.strip()}")
+
+    print("\nCallers (referenced by):")
+    if result.callers:
+        for c in result.callers:
+            print(f"  - [{c.kind}] {c.qualified_name} ({c.file_path}:{c.start_line})")
+    else:
+        print("  (no direct callers found)")
+
+    print("\nCallees (calls out to):")
+    if result.callees:
+        print(f"  {', '.join(result.callees)}")
+    else:
+        print("  (no calls out)")
+
+    print("\nGit History & Churn:")
+    for h in result.histories:
+        print(f"  Total commits modifying {h.symbol.name}: {h.churn_count}")
+        if h.commits:
+            for c in h.commits[:5]:
+                print(f"    - {c.commit_hash[:10]} ({c.authored_at[:10]}) by {c.author_name}: {c.subject}")
+
+    return 0
+
+
+def run_churn(args: argparse.Namespace) -> int:
+    from whycode.graph.service import CodeGraphService
+
+    service = CodeGraphService(args.repo)
+    hotspots = service.get_churn_hotspots(top_n=args.limit)
+
+    if not hotspots:
+        print("No churn data found.")
+        return 0
+
+    print(f"=== Top {len(hotspots)} Code Churn Hotspots ===\n")
+    print(f"{'Rank':<5} | {'Symbol':<28} | {'Kind':<10} | {'Churn':<6} | {'File':<30}")
+    print("-" * 88)
+    for rank, h in enumerate(hotspots, start=1):
+        sym = h.symbol
+        print(f"{rank:<5} | {sym.name:<28} | {sym.kind:<10} | {h.churn_count:<6} | {sym.file_path}:{sym.start_line}")
+
+    return 0
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -364,6 +449,10 @@ def main(argv: list[str] | None = None) -> int:
             return run_search(args)
         if args.command == "ask":
             return run_ask(args)
+        if args.command == "symbol":
+            return run_symbol(args)
+        if args.command == "churn":
+            return run_churn(args)
 
         parser.error("Unknown command.")
     except (GitReaderError, CommitSummaryError, ValueError) as exc:

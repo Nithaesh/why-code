@@ -85,3 +85,35 @@ CitationVerifier
     ▼
 QuestionAnswer Model (Answer + Sources + Verified Citations + Grounding Confidence)
 ```
+
+
+## Repository Structure & Git-History Association (Phase 6)
+
+```
+                     Python Source Files (.py)
+                                │
+                                ▼
+                       ASTSymbolParser (ast)
+                                │
+         ┌──────────────────────┴──────────────────────┐
+         ▼                                             ▼
+Definitions (Classes, Functions, Methods)       Call & Import Edges
+         │                                             │
+         └──────────────────────┬──────────────────────┘
+                                ▼
+                         CodebaseGraph
+             (find_symbols, get_callers, get_callees)
+                                │
+                                ▼
+                       SymbolChurnTracker
+              (Git Commit Diffs vs Symbol Line Spans)
+                                │
+                                ▼
+                        CodeGraphService
+             (inspect_symbol, get_churn_hotspots)
+                                │
+         ┌──────────────────────┴──────────────────────┐
+         ▼                                             ▼
+   CLI `whycode symbol`                         CLI `whycode churn`
+(Definitions, Callers, History)                 (Hotspot Churn Ranking)
+```

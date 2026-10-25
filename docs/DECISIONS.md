@@ -22,3 +22,10 @@
 - **Post-generation citation verification:** LLMs frequently produce plausible-sounding citations that refer to files or line numbers not actually present in the context. `CitationVerifier` programmatically extracts citations and verifies file and line-range containment against the retrieved evidence, computing a quantitative grounding confidence score.
 - **Untrusted data boundary:** Prompts explicitly inform the model that repository code, comments, and strings are untrusted data to be analyzed, not instructions to be executed.
 - **Framework simplicity vs LangChain:** For linear pipelines (Retrieve -> Distill -> Generate -> Verify), direct Python services provide complete transparency, faster execution, zero dependency churn, and superior testability. LangGraph is reserved for Phase 7 where cyclical agentic state machines are justified.
+
+
+## Phase 6: Repository Structure & Git-History Association
+
+- **Standard Library `ast` over Heavy Static Analysis Tools:** Python's standard `ast` module is fast, robust, and requires zero external dependencies. It extracts class hierarchies, function definitions, parameters, docstrings, imports, and function calls safely without executing code.
+- **Diff Hunk Line Span Intersect for Git Churn:** Instead of brittle line-blaming or slow git-log-L subprocess commands that break across line moves, `SymbolChurnTracker` checks whether unified diff hunks (`@@ -old_start,old_count +new_start,new_count @@`) intersect the symbol's start and end lines. This correlates AST symbols to Git commits accurately and fast.
+- **Callable Symbol Filtering for Callers:** When mapping function calls, classes can contain methods that invoke functions. However, attributing caller relationships to the enclosing class creates misleading edges. `CodebaseGraph.get_callers` explicitly restricts callers to callable symbols (`function` and `method`).
