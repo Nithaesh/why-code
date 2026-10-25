@@ -124,3 +124,114 @@ def test_tokenization_splits_underscored_identifiers() -> None:
     )
 
     assert tokens == ["cache_key", "cache", "key"]
+
+def test_prefers_cache_implementation_for_implementation_query():
+    chunker = CodeChunker()
+
+    chunks = [
+        chunker.chunk_text(
+            "tests/test_cache.py",
+            (
+                "from whycode.llm.cache import DiskCache\n"
+                "def test_cache():\n"
+                "    cache = DiskCache(...)\n"
+                "    assert cache.make_key(...)\n"
+            ),
+        )[0],
+        chunker.chunk_text(
+            "src/whycode/llm/cache.py",
+            (
+                "class DiskCache:\n"
+                "    @staticmethod\n"
+                "    def make_key(provider, model, prompt):\n"
+                "        return provider + model + prompt\n"
+            ),
+        )[0],
+    ]
+
+    results = LexicalRetriever().search(
+        "DiskCache make_key implementation",
+        chunks,
+        top_k=2,
+    )
+
+    assert results[0].chunk.file_path == "src/whycode/llm/cache.py"
+
+
+def test_prefers_class_definition_over_incidental_keyword_matches():
+    chunker = CodeChunker()
+
+    chunks = [
+        chunker.chunk_text(
+            "src/config.py",
+            (
+                "# DiskCache implementation configuration\n"
+                "class Settings:\n"
+                "    cache_model = 'DiskCache'\n"
+                "    cache_method = 'make_key'\n"
+            ),
+        )[0],
+        chunker.chunk_text(
+            "src/whycode/llm/cache.py",
+            (
+                "class DiskCache:\n"
+                "    @staticmethod\n"
+                "    def make_key(provider, model, prompt):\n"
+                "        return provider + model + prompt\n"
+            ),
+        )[0],
+    ]
+
+    results = LexicalRetriever().search(
+        "DiskCache make_key implementation",
+        chunks,
+        top_k=2,
+    )
+
+    assert results[0].chunk.file_path == "src/whycode/llm/cache.py"
+
+def test_natural_language_caching_query_finds_cache_implementation():
+    chunker = CodeChunker()
+
+    chunks = [
+        chunker.chunk_text(
+            "README.md",
+            (
+                "# WhyCode project\n"
+                "This project includes disk caching.\n"
+                "Run the small caching experiment to see how caching works.\n"
+            ),
+        )[0],
+        chunker.chunk_text(
+            "tests/test_cache.py",
+            (
+                "def test_cache_behavior():\n"
+                "    # Verify the cache works correctly\n"
+                "    assert True\n"
+            ),
+        )[0],
+        chunker.chunk_text(
+            "src/whycode/llm/cache.py",
+            (
+                "class DiskCache:\n"
+                "    @staticmethod\n"
+                "    def make_key(provider, model, prompt):\n"
+                "        return provider + model + prompt\n"
+                "\n"
+                "    def get(self, key):\n"
+                "        return self.entries.get(key)\n"
+                "\n"
+                "    def set(self, key, value):\n"
+                "        self.entries[key] = value\n"
+            ),
+        )[0],
+    ]
+
+    results = LexicalRetriever().search(
+        "How does caching work in this project?",
+        chunks,
+        top_k=3,
+    )
+
+    assert results
+    assert results[0].chunk.file_path == "src/whycode/llm/cache.py"
