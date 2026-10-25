@@ -240,7 +240,7 @@ export function App() {
   const repoName = health?.repo_path ? health.repo_path.split(/[\\/]/).pop() || health.repo_path : 'Local Repo'
 
   return (
-    <div className="min-h-screen bg-[#07090E] text-slate-100 flex flex-col font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="min-h-screen bg-[#06070B] text-slate-100 flex flex-col font-sans selection:bg-purple-500 selection:text-white">
       {/* 1. Header with Repository Switcher Modal & System Health */}
       <Header
         currentRepo={repoName}

@@ -2,34 +2,75 @@
 
 @layer base {
   :root {
-    --bg-primary: #080c14;
-    --bg-card: #0e1422;
-    --bg-card-hover: #131b2e;
-    --accent: #00f0ff;
-    --accent-dim: rgba(0, 240, 255, 0.12);
+    --bg-primary: #06070b;
+    --bg-card: rgba(13, 16, 27, 0.75);
+    --bg-card-hover: rgba(22, 26, 44, 0.85);
+    --accent: #a855f7;
+    --accent-glow: rgba(168, 85, 247, 0.35);
+    --accent-magenta: #d946ef;
     --border: rgba(255, 255, 255, 0.08);
-    --border-hover: rgba(0, 240, 255, 0.3);
+    --border-hover: rgba(168, 85, 247, 0.4);
   }
 
   body {
-    background-color: var(--bg-primary);
+    background-color: #06070b;
     color: #f1f5f9;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, sans-serif;
     overflow-x: hidden;
   }
 }
 
-/* Custom Glassmorphism Card */
+/* Custom Glassmorphism Card matching reference image */
 .glass-panel {
-  background: radial-gradient(circle at 50% 0%, rgba(20, 30, 50, 0.6) 0%, rgba(14, 20, 34, 0.8) 100%);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--border);
+  background: radial-gradient(circle at 50% 0%, rgba(26, 18, 48, 0.55) 0%, rgba(11, 13, 23, 0.85) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .glass-panel:hover {
-  border-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(168, 85, 247, 0.3);
+  box-shadow: 0 15px 40px -10px rgba(0, 0, 0, 0.8), 0 0 25px -5px rgba(168, 85, 247, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.glass-card-glow {
+  border: 1px solid rgba(168, 85, 247, 0.25);
+  box-shadow: 0 0 35px -5px rgba(147, 51, 234, 0.25), inset 0 0 20px -5px rgba(168, 85, 247, 0.15);
+}
+
+/* Neon Violet Glow Accents */
+.neon-glow-violet {
+  box-shadow: 0 0 30px -5px rgba(168, 85, 247, 0.4);
+}
+
+.neon-glow-magenta {
+  box-shadow: 0 0 30px -5px rgba(217, 70, 239, 0.4);
+}
+
+/* Radiant AI Orb Animation */
+@keyframes orb-pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+    box-shadow: 0 0 40px 10px rgba(168, 85, 247, 0.5), 0 0 80px 30px rgba(147, 51, 234, 0.3);
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+    box-shadow: 0 0 60px 15px rgba(192, 132, 252, 0.7), 0 0 110px 45px rgba(168, 85, 247, 0.4);
+  }
+}
+
+.animate-orb-pulse {
+  animation: orb-pulse 4s ease-in-out infinite;
+}
+
+@keyframes wave-flow {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 100; }
 }
 
 /* Custom Scrollbars */
@@ -38,19 +79,19 @@
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #080c14;
+  background: #06070b;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: rgba(168, 85, 247, 0.2);
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: rgba(168, 85, 247, 0.4);
 }
 
-/* Prose Markdown Typography */
+/* Prose Markdown Typography in Dark Violet Palette */
 .prose h1, .prose h2, .prose h3 {
-  color: #38bdf8;
+  color: #c084fc;
   font-weight: 700;
   letter-spacing: -0.02em;
   margin-top: 1.25rem;
@@ -71,18 +112,18 @@
   margin-bottom: 0.35rem;
 }
 .prose code {
-  background: rgba(0, 240, 255, 0.08);
-  color: #38bdf8;
+  background: rgba(168, 85, 247, 0.12);
+  color: #e879f9;
   padding: 0.15rem 0.35rem;
   border-radius: 0.35rem;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   font-size: 0.85em;
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  border: 1px solid rgba(168, 85, 247, 0.25);
 }
 .prose pre {
-  background: #05080f !important;
+  background: #040509 !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0.75rem;
+  border-radius: 0.85rem;
   padding: 1rem;
   overflow-x: auto;
   margin: 1rem 0;

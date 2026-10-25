@@ -138,29 +138,30 @@ export const Workbench: React.FC<WorkbenchProps> = ({
 }) => {
   return (
     <section id="workbench" className="py-20 border-b border-white/[0.06] relative">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-8">
-        {/* Workbench Section Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8">
+        {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-4 border-b border-white/[0.06]">
           <div>
-            <div className="inline-flex items-center space-x-2 text-cyan-400 font-mono text-xs uppercase tracking-wider mb-2">
+            <div className="inline-flex items-center space-x-2 text-purple-400 font-mono text-xs uppercase tracking-wider mb-2">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Live Interactive Workbench</span>
+              <span>Interactive Archaeology Workbench</span>
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-white">
-              Investigate <span className="text-cyan-300 font-mono">{repoName}</span>
+              Investigating <span className="bg-gradient-to-r from-purple-300 to-fuchsia-300 bg-clip-text text-transparent font-mono">{repoName}</span>
             </h2>
             <p className="text-sm text-slate-400 mt-1">
-              Run autonomous agent archaeology, grounded Q&A with citation audit, AST dependency tracing, and Git churn analytics.
+              Multi-hop agent reasoning, grounded Q&A with citation audit, AST dependency tracing, and Git churn analytics.
             </p>
           </div>
 
-          <div className="text-xs font-mono text-slate-500 bg-white/[0.02] px-3.5 py-1.5 rounded-lg border border-white/[0.05] self-start md:self-auto">
-            Target: <span className="text-slate-300">{repoName}</span>
+          <div className="text-xs font-mono text-purple-300 bg-purple-950/30 px-3.5 py-1.5 rounded-xl border border-purple-500/30 self-start md:self-auto flex items-center space-x-2 shadow-sm shadow-purple-950/40">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>Target: {repoName}</span>
           </div>
         </div>
 
-        {/* Workbench Navigation Tab Bar */}
-        <div className="flex space-x-1.5 p-1.5 rounded-2xl bg-[#0B0F19]/80 border border-white/[0.08] backdrop-blur-md overflow-x-auto">
+        {/* Tab Navigation matching reference dock style */}
+        <div className="flex space-x-2 p-2 rounded-2xl bg-[#090C16]/90 border border-white/[0.08] backdrop-blur-xl overflow-x-auto shadow-xl">
           {[
             { id: 'investigate', label: 'Agent Archaeology', icon: Sparkles },
             { id: 'ask', label: 'Grounded Q&A', icon: HelpCircle },
@@ -176,31 +177,31 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`px-4 py-2.5 rounded-xl text-xs font-medium transition-all flex items-center space-x-2 whitespace-nowrap cursor-pointer ${
                   isActive
-                    ? 'bg-cyan-400/10 text-cyan-300 border border-cyan-400/30 shadow-lg shadow-cyan-500/10'
+                    ? 'bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-200 border border-purple-500/40 shadow-lg shadow-purple-950/50'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.03] border border-transparent'
                 }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-cyan-400' : 'text-slate-500'}`} />
+                <Icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-slate-500'}`} />
                 <span>{tab.label}</span>
               </button>
             )
           })}
         </div>
 
-        {/* Tab 1: Agent Archaeology */}
+        {/* ================= TAB 1: AGENT ARCHAEOLOGY ================= */}
         {activeTab === 'investigate' && (
           <div className="space-y-6">
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden border border-white/[0.08]">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
-              <div className="relative z-10">
-                <div className="flex items-center space-x-2 text-cyan-400 font-mono text-xs uppercase tracking-wider mb-1">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl relative overflow-hidden border border-purple-500/20 shadow-2xl shadow-purple-950/30">
+              <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-center space-x-2 text-purple-400 font-mono text-xs uppercase tracking-wider">
                   <Sparkles className="w-4 h-4" />
                   <span>Stateful Software Archaeology</span>
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white mb-2">
+                <h3 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                   Multi-Hop Code Investigation Agent
                 </h3>
-                <p className="text-slate-400 text-sm max-w-3xl leading-relaxed mb-6 font-normal">
+                <p className="text-slate-400 text-sm max-w-3xl leading-relaxed font-normal">
                   Deconstructs diagnostic questions into targeted hypotheses, gathers multi-modal evidence across AST
                   callers, vector search, and Git commit diffs, reflects on sufficiency, and synthesizes an authoritative report.
                 </p>
@@ -211,10 +212,10 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     value={invQuery}
                     onChange={(e) => setInvQuery(e.target.value)}
                     placeholder="e.g. Why did token validation change, what commits caused it, and what callers broke?"
-                    className="w-full bg-[#05080F] border border-white/10 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-all font-sans"
+                    className="w-full bg-[#05060C] border border-white/10 rounded-2xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400 transition-all font-sans"
                   />
 
-                  {/* Sample Chips */}
+                  {/* Sample Inspiration Chips */}
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-[11px] font-mono text-slate-500">Inspiration:</span>
                     {[
@@ -226,7 +227,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                         key={sample}
                         type="button"
                         onClick={() => setInvQuery(sample)}
-                        className="text-xs px-3 py-1 rounded-full bg-white/[0.03] hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-400/40 text-slate-300 hover:text-cyan-300 transition-all cursor-pointer font-sans"
+                        className="text-xs px-3 py-1 rounded-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 hover:border-purple-400 text-purple-200 transition-all cursor-pointer font-sans"
                       >
                         {sample}
                       </button>
@@ -239,7 +240,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                       <select
                         value={invSteps}
                         onChange={(e) => setInvSteps(Number(e.target.value))}
-                        className="bg-[#05080F] border border-white/10 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none focus:border-cyan-400"
+                        className="bg-[#05060C] border border-white/10 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-purple-400"
                       >
                         <option value={2}>2 Steps (Rapid)</option>
                         <option value={3}>3 Steps (Standard)</option>
@@ -250,16 +251,16 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     <button
                       type="submit"
                       disabled={loading || !invQuery.trim()}
-                      className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black font-semibold text-sm transition-all shadow-lg shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer"
+                      className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-purple-500 via-fuchsia-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-purple-500/30 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 cursor-pointer"
                     >
                       {loading ? (
                         <>
-                          <RefreshCw className="w-4 h-4 animate-spin text-black" />
-                          <span>Investigating...</span>
+                          <RefreshCw className="w-4 h-4 animate-spin text-white" />
+                          <span>Excavating Codebase...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-4 h-4 text-black" />
+                          <Sparkles className="w-4 h-4 text-white" />
                           <span>Run Agent Investigation</span>
                         </>
                       )}
@@ -273,12 +274,12 @@ export const Workbench: React.FC<WorkbenchProps> = ({
             {invData && (
               <div className="space-y-6">
                 {/* Executive Summary Card */}
-                <div className="glass-panel p-6 sm:p-8 rounded-2xl border-l-4 border-l-cyan-400 space-y-3">
+                <div className="glass-panel p-6 sm:p-8 rounded-3xl border-l-4 border-l-purple-500 space-y-3 shadow-xl">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-mono text-xs uppercase tracking-wider text-cyan-400 font-bold">
+                    <h3 className="font-mono text-xs uppercase tracking-wider text-purple-300 font-bold">
                       Executive Summary
                     </h3>
-                    <span className="text-xs font-mono text-slate-400 bg-black/40 px-3 py-1 rounded-full border border-white/10">
+                    <span className="text-xs font-mono text-purple-300 bg-purple-950/40 px-3 py-1 rounded-full border border-purple-500/30">
                       {invData.citations.length} Grounded Citations
                     </span>
                   </div>
@@ -290,7 +291,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
 
                 {/* Bento Grid: Root Causes & Impacted Callers */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
                     <h4 className="font-mono text-xs uppercase tracking-wider text-emerald-400 font-bold flex items-center space-x-2">
                       <ShieldCheck className="w-4 h-4" />
                       <span>Root Causes & Mechanisms</span>
@@ -309,8 +310,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     </ul>
                   </div>
 
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
-                    <h4 className="font-mono text-xs uppercase tracking-wider text-amber-400 font-bold flex items-center space-x-2">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
+                    <h4 className="font-mono text-xs uppercase tracking-wider text-purple-400 font-bold flex items-center space-x-2">
                       <Layers className="w-4 h-4" />
                       <span>Impacted Callers & Scope</span>
                     </h4>
@@ -319,7 +320,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                         invData.affected_symbols.map((sym, idx) => (
                           <span
                             key={idx}
-                            className="px-2.5 py-1 rounded-md text-xs font-mono bg-amber-400/10 text-amber-300 border border-amber-400/20"
+                            className="px-2.5 py-1 rounded-xl text-xs font-mono bg-purple-500/10 text-purple-300 border border-purple-500/25"
                           >
                             {sym}
                           </span>
@@ -333,8 +334,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
 
                 {/* Bento Grid: Timeline & Gaps */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
-                    <h4 className="font-mono text-xs uppercase tracking-wider text-blue-400 font-bold flex items-center space-x-2">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
+                    <h4 className="font-mono text-xs uppercase tracking-wider text-indigo-400 font-bold flex items-center space-x-2">
                       <Clock className="w-4 h-4" />
                       <span>Historical Timeline & Commits</span>
                     </h4>
@@ -342,7 +343,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                       {invData.timeline.length ? (
                         invData.timeline.map((item, idx) => (
                           <li key={idx} className="flex items-start space-x-2">
-                            <span className="text-blue-400 font-bold">▸</span>
+                            <span className="text-indigo-400 font-bold">▸</span>
                             <span>{item}</span>
                           </li>
                         ))
@@ -352,8 +353,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     </ul>
                   </div>
 
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
-                    <h4 className="font-mono text-xs uppercase tracking-wider text-purple-400 font-bold flex items-center space-x-2">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
+                    <h4 className="font-mono text-xs uppercase tracking-wider text-fuchsia-400 font-bold flex items-center space-x-2">
                       <AlertCircle className="w-4 h-4" />
                       <span>Uncertainties & Gaps</span>
                     </h4>
@@ -361,7 +362,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                       {invData.uncertainties.length ? (
                         invData.uncertainties.map((unc, idx) => (
                           <li key={idx} className="flex items-start space-x-2">
-                            <span className="text-purple-400 font-bold">•</span>
+                            <span className="text-fuchsia-400 font-bold">•</span>
                             <span>{unc}</span>
                           </li>
                         ))
@@ -373,8 +374,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                 </div>
 
                 {/* Raw Synthesis Markdown */}
-                <details className="glass-panel p-4 rounded-xl text-xs font-mono border border-white/[0.06]">
-                  <summary className="text-slate-400 cursor-pointer font-bold hover:text-cyan-300">
+                <details className="glass-panel p-5 rounded-2xl text-xs font-mono border border-white/[0.06]">
+                  <summary className="text-slate-400 cursor-pointer font-bold hover:text-purple-300">
                     View Complete Raw Markdown Synthesis
                   </summary>
                   <div
@@ -387,10 +388,10 @@ export const Workbench: React.FC<WorkbenchProps> = ({
           </div>
         )}
 
-        {/* Tab 2: Grounded Q&A */}
+        {/* ================= TAB 2: GROUNDED Q&A ================= */}
         {activeTab === 'ask' && (
           <div className="space-y-6">
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-4 border border-white/[0.08]">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4 border border-purple-500/20 shadow-xl">
               <h3 className="text-xl font-bold text-white">Grounded Codebase Question Answering</h3>
               <p className="text-slate-400 text-sm">
                 Generates answers strictly from retrieved code chunks and audits every statement with post-generation citation verification.
@@ -402,7 +403,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   value={askQuery}
                   onChange={(e) => setAskQuery(e.target.value)}
                   placeholder="e.g. How does ContextDistiller merge overlapping chunks and enforce character budgets?"
-                  className="w-full bg-[#05080F] border border-white/10 rounded-xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans"
+                  className="w-full bg-[#05060C] border border-white/10 rounded-2xl p-4 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400 font-sans"
                 />
 
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2">
@@ -411,7 +412,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     <select
                       value={askMode}
                       onChange={(e) => setAskMode(e.target.value as any)}
-                      className="bg-[#05080F] border border-white/10 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none"
+                      className="bg-[#05060C] border border-white/10 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-purple-400"
                     >
                       <option value="hybrid">Hybrid (Lexical + Dense Vector)</option>
                       <option value="lexical">Lexical (BM25)</option>
@@ -422,9 +423,9 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   <button
                     type="submit"
                     disabled={loading || !askQuery.trim()}
-                    className="px-6 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-semibold text-sm transition-all disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-2"
+                    className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-semibold text-sm transition-all shadow-lg shadow-purple-500/30 disabled:opacity-50 cursor-pointer flex items-center justify-center space-x-2"
                   >
-                    {loading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <HelpCircle className="w-4 h-4" />}
+                    {loading ? <RefreshCw className="w-4 h-4 animate-spin text-white" /> : <HelpCircle className="w-4 h-4" />}
                     <span>Ask Codebase</span>
                   </button>
                 </div>
@@ -434,16 +435,16 @@ export const Workbench: React.FC<WorkbenchProps> = ({
             {askData && (
               <div className="space-y-6">
                 {/* Confidence Meter */}
-                <div className="glass-panel p-4 rounded-xl flex items-center justify-between border border-white/[0.06]">
+                <div className="glass-panel p-5 rounded-2xl flex items-center justify-between border border-purple-500/20">
                   <div className="text-xs font-mono text-slate-300">Grounding Confidence Audit</div>
-                  <div className="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-400/10 text-emerald-300 border border-emerald-400/30">
+                  <div className="px-3.5 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30 shadow-sm shadow-emerald-500/20">
                     {(askData.grounding_confidence * 100).toFixed(1)}% Grounded
                   </div>
                 </div>
 
                 {/* Answer Card */}
-                <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-3 border border-white/[0.08]">
-                  <h4 className="font-mono text-xs uppercase tracking-wider text-cyan-400 font-bold">Answer</h4>
+                <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-3 border border-white/[0.08]">
+                  <h4 className="font-mono text-xs uppercase tracking-wider text-purple-300 font-bold">Answer</h4>
                   <div
                     className="prose text-sm text-slate-200 leading-relaxed"
                     dangerouslySetInnerHTML={{ __html: marked.parse(askData.answer) }}
@@ -451,7 +452,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                 </div>
 
                 {/* Citation Verifier Audit */}
-                <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
+                <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
                   <h4 className="font-mono text-xs uppercase tracking-wider text-slate-400 font-bold">
                     Citation Grounding Ledger
                   </h4>
@@ -459,15 +460,15 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     {askData.verified_citations.map((c, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-[#05080F] border border-white/[0.06] flex items-center justify-between text-xs font-mono"
+                        className="p-3.5 rounded-2xl bg-[#05060C] border border-white/[0.06] flex items-center justify-between text-xs font-mono"
                       >
                         <span className="text-slate-300">{c.raw_citation}</span>
                         <div className="flex items-center space-x-3">
                           <span className="text-slate-500 text-[11px]">{c.reason}</span>
                           <span
-                            className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                            className={`px-2 py-0.5 rounded-md text-[10px] font-bold ${
                               c.is_verified
-                                ? 'bg-emerald-400/20 text-emerald-300 border border-emerald-400/30'
+                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
                                 : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
                             }`}
                           >
@@ -480,7 +481,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                 </div>
 
                 {/* Sources */}
-                <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
+                <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
                   <h4 className="font-mono text-xs uppercase tracking-wider text-slate-400 font-bold">
                     Retrieved Source References
                   </h4>
@@ -488,7 +489,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     {askData.sources.map((s, idx) => (
                       <div
                         key={idx}
-                        className="p-3 rounded-xl bg-[#05080F] border border-white/[0.06] text-xs font-mono text-cyan-300"
+                        className="p-3.5 rounded-2xl bg-[#05060C] border border-white/[0.06] text-xs font-mono text-purple-300"
                       >
                         {s.file_path}:{s.start_line}-{s.end_line}
                       </div>
@@ -500,10 +501,10 @@ export const Workbench: React.FC<WorkbenchProps> = ({
           </div>
         )}
 
-        {/* Tab 3: AST Code Graph */}
+        {/* ================= TAB 3: AST CODE GRAPH ================= */}
         {activeTab === 'symbol' && (
           <div className="space-y-6">
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-4 border border-white/[0.08]">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4 border border-purple-500/20 shadow-xl">
               <h3 className="text-xl font-bold text-white">AST Symbol & Caller Dependency Graph</h3>
               <p className="text-slate-400 text-sm">
                 Inspect functions, methods, and classes to trace who calls them and which Git commits modified their exact line spans.
@@ -515,12 +516,12 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   value={symbolQuery}
                   onChange={(e) => setSymbolQuery(e.target.value)}
                   placeholder="e.g. DiskCache, CitationVerifier, CodebaseSearchService, ContextDistiller"
-                  className="flex-1 bg-[#05080F] border border-white/10 rounded-xl px-4 py-2.5 text-sm font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                  className="flex-1 bg-[#05060C] border border-white/10 rounded-2xl px-4 py-2.5 text-sm font-mono text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400"
                 />
                 <button
                   type="submit"
                   disabled={loading || !symbolQuery.trim()}
-                  className="px-6 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-semibold text-sm transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-semibold text-sm transition-all shadow-md shadow-purple-500/25 cursor-pointer"
                 >
                   Inspect Symbol
                 </button>
@@ -535,7 +536,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                       key={sym}
                       type="button"
                       onClick={() => setSymbolQuery(sym)}
-                      className="text-xs px-2.5 py-1 rounded-full bg-white/[0.03] hover:bg-cyan-500/10 border border-white/10 text-slate-300 font-mono cursor-pointer"
+                      className="text-xs px-2.5 py-1 rounded-full bg-purple-500/10 hover:bg-purple-500/20 border border-purple-500/20 text-purple-200 font-mono cursor-pointer transition-all"
                     >
                       {sym}
                     </button>
@@ -548,12 +549,12 @@ export const Workbench: React.FC<WorkbenchProps> = ({
               <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Definitions */}
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
-                    <h4 className="font-mono text-xs uppercase text-cyan-400 font-bold">Definitions</h4>
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
+                    <h4 className="font-mono text-xs uppercase text-purple-400 font-bold">Definitions</h4>
                     <div className="space-y-2">
                       {symbolData.definitions.map((d, idx) => (
-                        <div key={idx} className="p-3 bg-[#05080F] rounded-xl border border-white/[0.06] space-y-1">
-                          <div className="font-mono font-bold text-cyan-300 text-xs">
+                        <div key={idx} className="p-3.5 bg-[#05060C] rounded-2xl border border-white/[0.06] space-y-1">
+                          <div className="font-mono font-bold text-purple-300 text-xs">
                             [{d.kind}] {d.name}
                           </div>
                           <div className="text-slate-400 font-mono text-[11px]">
@@ -568,7 +569,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   </div>
 
                   {/* Callers (Dependents) */}
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
                     <h4 className="font-mono text-xs uppercase text-emerald-400 font-bold">
                       Callers ({symbolData.callers.length})
                     </h4>
@@ -577,7 +578,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                         symbolData.callers.map((c, idx) => (
                           <div
                             key={idx}
-                            className="p-2.5 bg-[#05080F] rounded-xl border border-white/[0.06] flex justify-between items-center font-mono text-xs"
+                            className="p-3 bg-[#05060C] rounded-2xl border border-white/[0.06] flex justify-between items-center font-mono text-xs"
                           >
                             <span className="text-emerald-300 font-medium">{c.name}</span>
                             <span className="text-slate-500 text-[11px] truncate max-w-[120px]">{c.file_path}</span>
@@ -590,8 +591,8 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   </div>
 
                   {/* Callees */}
-                  <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
-                    <h4 className="font-mono text-xs uppercase text-amber-400 font-bold">
+                  <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
+                    <h4 className="font-mono text-xs uppercase text-fuchsia-400 font-bold">
                       Callees ({symbolData.callees.length})
                     </h4>
                     <div className="flex flex-wrap gap-1.5 max-h-80 overflow-y-auto">
@@ -599,7 +600,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                         symbolData.callees.map((c, idx) => (
                           <span
                             key={idx}
-                            className="px-2 py-1 bg-amber-400/10 text-amber-300 border border-amber-400/20 rounded-md font-mono text-[11px]"
+                            className="px-2.5 py-1 bg-fuchsia-500/10 text-fuchsia-300 border border-fuchsia-500/20 rounded-xl font-mono text-[11px]"
                           >
                             {c}
                           </span>
@@ -612,7 +613,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                 </div>
 
                 {/* Git Churn Revisions */}
-                <div className="glass-panel p-6 rounded-2xl space-y-3 border border-white/[0.08]">
+                <div className="glass-panel p-6 rounded-3xl space-y-3 border border-white/[0.08]">
                   <h4 className="font-mono text-xs uppercase text-purple-400 font-bold flex items-center space-x-2">
                     <GitCommit className="w-4 h-4" />
                     <span>Git Churn Revisions Touching This Symbol</span>
@@ -627,10 +628,10 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                           {h.commits.map((c) => (
                             <div
                               key={c.commit_hash}
-                              className="p-2.5 rounded-xl bg-[#05080F] border border-white/[0.06] flex items-center justify-between font-mono text-xs"
+                              className="p-3 rounded-2xl bg-[#05060C] border border-white/[0.06] flex items-center justify-between font-mono text-xs"
                             >
                               <div className="flex items-center space-x-2">
-                                <span className="text-cyan-400 font-bold">{c.commit_hash.slice(0, 8)}</span>
+                                <span className="text-purple-400 font-bold">{c.commit_hash.slice(0, 8)}</span>
                                 <span className="text-slate-300">{c.subject}</span>
                               </div>
                               <span className="text-slate-500 text-[11px]">
@@ -648,13 +649,13 @@ export const Workbench: React.FC<WorkbenchProps> = ({
           </div>
         )}
 
-        {/* Tab 4: Churn Hotspots */}
+        {/* ================= TAB 4: CHURN HOTSPOTS ================= */}
         {activeTab === 'churn' && (
           <div className="space-y-6">
-            <div className="glass-panel p-6 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-white/[0.08]">
+            <div className="glass-panel p-6 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-purple-500/20 shadow-xl">
               <div>
                 <h3 className="text-xl font-bold text-white flex items-center space-x-2">
-                  <Flame className="w-5 h-5 text-amber-400" />
+                  <Flame className="w-5 h-5 text-purple-400" />
                   <span>Codebase Churn Hotspots</span>
                 </h3>
                 <p className="text-slate-400 text-sm mt-1">
@@ -663,17 +664,17 @@ export const Workbench: React.FC<WorkbenchProps> = ({
               </div>
               <button
                 onClick={fetchChurn}
-                className="px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 font-mono text-xs transition-all flex items-center space-x-2 cursor-pointer border border-white/10 self-start sm:self-auto"
+                className="px-4 py-2 rounded-xl bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 font-mono text-xs transition-all flex items-center space-x-2 cursor-pointer border border-purple-500/30 self-start sm:self-auto"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-cyan-400" />
+                <RefreshCw className="w-3.5 h-3.5 text-purple-400" />
                 <span>Refresh Hotspots</span>
               </button>
             </div>
 
-            <div className="glass-panel rounded-2xl overflow-hidden border border-white/[0.08]">
+            <div className="glass-panel rounded-3xl overflow-hidden border border-white/[0.08]">
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-mono">
-                  <thead className="bg-[#05080F] text-slate-400 border-b border-white/[0.08]">
+                  <thead className="bg-[#05060C] text-slate-400 border-b border-white/[0.08]">
                     <tr>
                       <th className="p-4">Rank</th>
                       <th className="p-4">Symbol Name</th>
@@ -686,11 +687,11 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   <tbody className="divide-y divide-white/[0.04] text-slate-300">
                     {churnData.length ? (
                       churnData.map((h) => (
-                        <tr key={h.symbol_name} className="hover:bg-white/[0.02] transition-colors">
+                        <tr key={h.symbol_name} className="hover:bg-purple-500/[0.03] transition-colors">
                           <td className="p-4 font-bold text-slate-500">#{h.rank}</td>
-                          <td className="p-4 font-bold text-cyan-300">{h.symbol_name}</td>
+                          <td className="p-4 font-bold text-purple-300">{h.symbol_name}</td>
                           <td className="p-4 text-slate-400">[{h.kind}]</td>
-                          <td className="p-4 font-bold text-purple-400">{h.churn_count} revisions</td>
+                          <td className="p-4 font-bold text-fuchsia-400">{h.churn_count} revisions</td>
                           <td className="p-4 text-slate-400">
                             {h.file_path}:{h.start_line}
                           </td>
@@ -713,10 +714,10 @@ export const Workbench: React.FC<WorkbenchProps> = ({
           </div>
         )}
 
-        {/* Tab 5: Code Search */}
+        {/* ================= TAB 5: CODE SEARCH ================= */}
         {activeTab === 'search' && (
           <div className="space-y-6">
-            <div className="glass-panel p-6 sm:p-8 rounded-2xl space-y-4 border border-white/[0.08]">
+            <div className="glass-panel p-6 sm:p-8 rounded-3xl space-y-4 border border-purple-500/20 shadow-xl">
               <h3 className="text-xl font-bold text-white">Hybrid Code Search</h3>
               <p className="text-slate-400 text-sm">
                 Reciprocal Rank Fusion uniting BM25 term matches and sentence-transformer cosine similarities.
@@ -728,12 +729,12 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search keywords or semantic query..."
-                    className="flex-1 bg-[#05080F] border border-white/10 rounded-xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-cyan-400"
+                    className="flex-1 bg-[#05060C] border border-white/10 rounded-2xl px-4 py-2.5 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-purple-400"
                   />
                   <button
                     type="submit"
                     disabled={loading || !searchQuery.trim()}
-                    className="px-6 py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-semibold text-sm transition-all cursor-pointer"
+                    className="px-6 py-2.5 rounded-2xl bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-semibold text-sm transition-all shadow-md shadow-purple-500/25 cursor-pointer"
                   >
                     Search
                   </button>
@@ -743,7 +744,7 @@ export const Workbench: React.FC<WorkbenchProps> = ({
                   <select
                     value={searchMode}
                     onChange={(e) => setSearchMode(e.target.value as any)}
-                    className="bg-[#05080F] border border-white/10 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none"
+                    className="bg-[#05060C] border border-white/10 rounded-xl px-3 py-1.5 text-slate-200 focus:outline-none focus:border-purple-400"
                   >
                     <option value="hybrid">Hybrid (Lexical + Dense Vector)</option>
                     <option value="lexical">Lexical (BM25)</option>
@@ -755,14 +756,14 @@ export const Workbench: React.FC<WorkbenchProps> = ({
 
             <div className="space-y-4">
               {searchResults.map((r, idx) => (
-                <div key={idx} className="glass-panel p-5 rounded-2xl space-y-3 font-mono text-xs border border-white/[0.08]">
+                <div key={idx} className="glass-panel p-5 rounded-3xl space-y-3 font-mono text-xs border border-white/[0.08]">
                   <div className="flex items-center justify-between">
-                    <span className="text-cyan-400 font-bold">
+                    <span className="text-purple-400 font-bold">
                       {idx + 1}. {r.file_path}:{r.start_line}-{r.end_line}
                     </span>
                     <span className="text-slate-500">Score: {r.score.toFixed(3)}</span>
                   </div>
-                  <pre className="p-3.5 bg-[#05080F] rounded-xl overflow-x-auto text-slate-300 text-[11px] border border-white/[0.04]">
+                  <pre className="p-3.5 bg-[#05060C] rounded-2xl overflow-x-auto text-slate-300 text-[11px] border border-white/[0.04]">
                     <code>{r.content}</code>
                   </pre>
                 </div>
