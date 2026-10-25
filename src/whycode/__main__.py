@@ -163,6 +163,28 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum agentic reasoning/tool-execution iterations (default: 3)",
     )
 
+    serve_parser = subparsers.add_parser(
+        "serve",
+        help="Start the WhyCode REST API server.",
+    )
+    serve_parser.add_argument(
+        "repo",
+        nargs="?",
+        default=".",
+        help="Path to repository (default: current directory)",
+    )
+    serve_parser.add_argument(
+        "--host",
+        default="127.0.0.1",
+        help="Host interface to bind (default: 127.0.0.1)",
+    )
+    serve_parser.add_argument(
+        "--port",
+        type=int,
+        default=8000,
+        help="Port to bind (default: 8000)",
+    )
+
     return parser
 
 
@@ -497,6 +519,17 @@ def run_investigate(args: argparse.Namespace) -> int:
     return 0
 
 
+def run_serve(args: argparse.Namespace) -> int:
+    import uvicorn
+    from whycode.api import create_app
+
+    app = create_app(repo_path=args.repo)
+    print(f"Starting WhyCode REST API server on http://{args.host}:{args.port}")
+    print(f"Interactive documentation available at http://{args.host}:{args.port}/docs")
+    uvicorn.run(app, host=args.host, port=args.port)
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
@@ -518,6 +551,8 @@ def main(argv: list[str] | None = None) -> int:
             return run_churn(args)
         if args.command == "investigate":
             return run_investigate(args)
+        if args.command == "serve":
+            return run_serve(args)
 
         parser.error("Unknown command.")
     except (GitReaderError, CommitSummaryError, ValueError) as exc:
