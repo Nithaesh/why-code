@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from whycode.agent import InvestigationAgent, InvestigationToolbox
 from whycode.api.routes import router
@@ -111,4 +112,10 @@ def create_app(
     }
 
     app.include_router(router)
+
+    # Mount static frontend if web/ directory exists
+    web_dir = Path(__file__).resolve().parents[3] / "web"
+    if web_dir.exists():
+        app.mount("/", StaticFiles(directory=str(web_dir), html=True), name="web")
+
     return app

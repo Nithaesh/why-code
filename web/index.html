@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhyCode — Codebase Archaeology & GenAI Diagnostics</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-cyan-500 selection:text-black">
+
+  <!-- Top Navigation Header -->
+  <header class="border-b border-slate-800 bg-slate-900/70 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center font-mono font-bold text-black shadow-lg shadow-cyan-500/20 text-lg">
+          W
+        </div>
+        <div>
+          <span class="font-bold text-lg tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">WhyCode</span>
+          <span class="text-xs px-2 py-0.5 ml-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-400 font-mono">v0.1.0</span>
+        </div>
+      </div>
+
+      <!-- System Health Indicator & Documentation Links -->
+      <div class="flex items-center space-x-4 text-xs font-mono">
+        <div id="healthBadge" class="flex items-center space-x-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse" id="healthDot"></span>
+          <span id="healthText" class="text-slate-300">Connecting...</span>
+        </div>
+        <a href="/docs" target="_blank" class="text-slate-400 hover:text-cyan-400 transition-colors flex items-center space-x-1">
+          <span>Swagger Docs</span>
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Navigation Tabs -->
+  <div class="border-b border-slate-800 bg-slate-900/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <nav class="flex space-x-2 py-2" id="navTabs">
+        <button data-tab="tab-investigate" class="nav-tab active">
+          <span class="text-base mr-1.5">🕵️</span> Agent Investigation
+        </button>
+        <button data-tab="tab-ask" class="nav-tab">
+          <span class="text-base mr-1.5">💬</span> Grounded Q&A
+        </button>
+        <button data-tab="tab-symbol" class="nav-tab">
+          <span class="text-base mr-1.5">🌳</span> AST Code Graph
+        </button>
+        <button data-tab="tab-churn" class="nav-tab">
+          <span class="text-base mr-1.5">🔥</span> Churn Hotspots
+        </button>
+        <button data-tab="tab-search" class="nav-tab">
+          <span class="text-base mr-1.5">🔍</span> Code Search
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full">
+
+    <!-- TAB 1: Agentic Investigation -->
+    <section id="tab-investigate" class="tab-content active space-y-6">
+      <div class="bg-gradient-to-br from-slate-900 via-slate-900/90 to-slate-800/40 p-6 rounded-2xl border border-slate-800 shadow-xl shadow-cyan-950/10">
+        <div class="mb-4">
+          <h2 class="text-xl font-bold text-white flex items-center">
+            Autonomous Multi-Hop Code Investigation
+          </h2>
+          <p class="text-sm text-slate-400 mt-1">
+            WhyCode deconstructs questions into hypotheses, navigates AST caller graphs, inspects Git diffs, reflects on evidence sufficiency, and writes a grounded diagnostic report.
+          </p>
+        </div>
+
+        <form id="investigateForm" class="space-y-4">
+          <div>
+            <textarea id="investigateQuery" rows="3" required
+              class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 focus:border-cyan-500 text-sm font-sans"
+              placeholder="e.g. Why did token expiration change and what callers might break?"></textarea>
+          </div>
+
+          <!-- Sample Query Chips -->
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs text-slate-500 font-mono">Suggested:</span>
+            <button type="button" class="sample-chip" data-target="investigateQuery">Why was SQLite chosen for vector indexing and how are embeddings stored?</button>
+            <button type="button" class="sample-chip" data-target="investigateQuery">How does CitationVerifier detect hallucinated file citations?</button>
+            <button type="button" class="sample-chip" data-target="investigateQuery">How does DiskCache construct cache keys to guarantee determinism?</button>
+          </div>
+
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center space-x-2 text-xs text-slate-400 font-mono">
+              <label for="investigateSteps">Max Iteration Budget:</label>
+              <select id="investigateSteps" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200 focus:outline-none focus:border-cyan-500">
+                <option value="2">2 Steps</option>
+                <option value="3" selected>3 Steps (Standard)</option>
+                <option value="5">5 Steps (Deep Archaeology)</option>
+              </select>
+            </div>
+
+            <button type="submit" id="investigateBtn"
+              class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-black font-semibold text-sm hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/20 flex items-center space-x-2 cursor-pointer">
+              <span>Run Agent Investigation</span>
+              <svg id="investigateSpinner" class="hidden animate-spin w-4 h-4 text-black" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Agent Output Container -->
+      <div id="investigateResult" class="hidden space-y-6">
+        <!-- Milestone Progress Tracker -->
+        <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/50 flex items-center justify-between text-xs font-mono text-slate-400">
+          <div class="flex items-center space-x-2 text-cyan-400 font-bold">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping"></span>
+            <span>Investigation Completed</span>
+          </div>
+          <div id="investigateCitationsCount" class="text-slate-400">0 Citations Extracted</div>
+        </div>
+
+        <!-- Executive Summary -->
+        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-base font-bold text-cyan-400 uppercase tracking-wider font-mono">Executive Summary</h3>
+          <div id="invSummary" class="text-slate-200 leading-relaxed text-sm"></div>
+        </div>
+
+        <!-- Two Column Grid: Root Causes & Impacted Callers -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider font-mono">Root Causes & Mechanism</h3>
+            <ul id="invRootCauses" class="space-y-2 text-xs text-slate-300 list-disc list-inside"></ul>
+          </div>
+          <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider font-mono">Impacted Callers & Architectural Scope</h3>
+            <div id="invAffectedSymbols" class="flex flex-wrap gap-2"></div>
+          </div>
+        </div>
+
+        <!-- Timeline & Uncertainties -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-blue-400 uppercase tracking-wider font-mono">Historical Timeline & Commits</h3>
+            <ul id="invTimeline" class="space-y-2 text-xs text-slate-300"></ul>
+          </div>
+          <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-bold text-purple-400 uppercase tracking-wider font-mono">Uncertainties & Gaps</h3>
+            <ul id="invUncertainties" class="space-y-2 text-xs text-slate-400 list-disc list-inside"></ul>
+          </div>
+        </div>
+
+        <!-- Raw Full Markdown Output (Collapsible) -->
+        <details class="bg-slate-900/60 rounded-xl border border-slate-800 p-4 text-xs font-mono">
+          <summary class="text-slate-400 cursor-pointer font-bold hover:text-cyan-400">View Full Markdown Synthesis</summary>
+          <div id="invRawMarkdown" class="mt-4 prose prose-invert max-w-none text-slate-300"></div>
+        </details>
+      </div>
+    </section>
+
+    <!-- TAB 2: Grounded Code Q&A -->
+    <section id="tab-ask" class="tab-content space-y-6">
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-xl font-bold text-white mb-2">Grounded Codebase Question Answering</h2>
+        <p class="text-sm text-slate-400 mb-4">Answers are synthesized strictly from retrieved repository code chunks, followed by automated citation verification.</p>
+
+        <form id="askForm" class="space-y-4">
+          <textarea id="askQuestion" rows="2" required
+            class="w-full bg-slate-950 border border-slate-700 rounded-xl p-3.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 text-sm"
+            placeholder="e.g. How does ContextDistiller coalesce adjacent code chunks?"></textarea>
+
+          <div class="flex items-center justify-between pt-2">
+            <div class="flex items-center space-x-3 text-xs font-mono text-slate-400">
+              <label>Retrieval Mode:</label>
+              <select id="askMode" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200">
+                <option value="hybrid" selected>Hybrid (Lexical + Vector RRF)</option>
+                <option value="lexical">Lexical (BM25)</option>
+                <option value="semantic">Semantic (Vector)</option>
+              </select>
+            </div>
+
+            <button type="submit" id="askBtn" class="px-5 py-2.5 rounded-xl bg-cyan-500 text-black font-semibold text-sm hover:bg-cyan-400 transition-all flex items-center space-x-2">
+              <span>Ask Codebase</span>
+              <svg id="askSpinner" class="hidden animate-spin w-4 h-4 text-black" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path></svg>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Q&A Output -->
+      <div id="askResult" class="hidden space-y-6">
+        <!-- Confidence Badge -->
+        <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/60 flex items-center justify-between">
+          <div class="text-sm font-semibold text-slate-200">Grounding Confidence Audit</div>
+          <div id="confidencePill" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            100.0% Grounded
+          </div>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-4">
+          <h3 class="text-sm font-mono uppercase tracking-wider text-cyan-400">Answer</h3>
+          <div id="askAnswer" class="text-sm text-slate-200 leading-relaxed space-y-2"></div>
+        </div>
+
+        <!-- Verified Citations -->
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-mono uppercase tracking-wider text-slate-400">Citation Verifier Audit</h3>
+          <div id="askCitations" class="space-y-2"></div>
+        </div>
+
+        <!-- Sources -->
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-mono uppercase tracking-wider text-slate-400">Retrieved Sources</h3>
+          <div id="askSources" class="space-y-2"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: AST Code Graph -->
+    <section id="tab-symbol" class="tab-content space-y-6">
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-xl font-bold text-white mb-2">AST Symbol & Caller Dependency Graph</h2>
+        <p class="text-sm text-slate-400 mb-4">Inspect any class, function, or method to uncover who calls it and what commits modified it.</p>
+
+        <form id="symbolForm" class="flex gap-3">
+          <input type="text" id="symbolInput" required
+            class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-slate-100 placeholder-slate-500 text-sm font-mono"
+            placeholder="e.g. DiskCache, CodebaseSearchService, ContextDistiller">
+          <button type="submit" class="px-5 py-2 rounded-xl bg-cyan-500 text-black font-semibold text-sm hover:bg-cyan-400 transition-all">Inspect Symbol</button>
+        </form>
+      </div>
+
+      <div id="symbolResult" class="hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-mono uppercase text-cyan-400 font-bold">Definitions</h3>
+            <div id="symbolDefs" class="space-y-2 text-xs"></div>
+          </div>
+          <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-mono uppercase text-emerald-400 font-bold">Callers (Dependents)</h3>
+            <div id="symbolCallers" class="space-y-2 text-xs"></div>
+          </div>
+          <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+            <h3 class="text-sm font-mono uppercase text-amber-400 font-bold">Callees (Calls Out To)</h3>
+            <div id="symbolCallees" class="flex flex-wrap gap-1 text-xs"></div>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 space-y-3">
+          <h3 class="text-sm font-mono uppercase text-purple-400 font-bold">Git Churn & Modifications</h3>
+          <div id="symbolChurn" class="space-y-2 text-xs"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: Churn Hotspots -->
+    <section id="tab-churn" class="tab-content space-y-6">
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800 flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-white">Code Churn Hotspots</h2>
+          <p class="text-sm text-slate-400">Functions and classes with the highest frequency of Git commit modifications.</p>
+        </div>
+        <button id="refreshChurnBtn" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-mono transition-all">
+          ↻ Refresh Hotspots
+        </button>
+      </div>
+
+      <div class="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden">
+        <table class="w-full text-left text-xs font-mono">
+          <thead class="bg-slate-950/80 text-slate-400 border-b border-slate-800">
+            <tr>
+              <th class="p-4">Rank</th>
+              <th class="p-4">Symbol</th>
+              <th class="p-4">Kind</th>
+              <th class="p-4">Revisions</th>
+              <th class="p-4">Location</th>
+              <th class="p-4">Latest Modification</th>
+            </tr>
+          </thead>
+          <tbody id="churnTableBody" class="divide-y divide-slate-800/60 text-slate-300">
+            <tr><td colspan="6" class="p-8 text-center text-slate-500">Loading churn hotspots...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: Code Search -->
+    <section id="tab-search" class="tab-content space-y-6">
+      <div class="bg-slate-900 p-6 rounded-2xl border border-slate-800">
+        <h2 class="text-xl font-bold text-white mb-2">Codebase Search</h2>
+        <form id="searchForm" class="space-y-4">
+          <div class="flex gap-3">
+            <input type="text" id="searchInput" required
+              class="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-slate-100 placeholder-slate-500 text-sm"
+              placeholder="Keywords or semantic search query...">
+            <button type="submit" class="px-5 py-2 rounded-xl bg-cyan-500 text-black font-semibold text-sm hover:bg-cyan-400 transition-all">Search</button>
+          </div>
+          <div class="flex items-center space-x-4 text-xs font-mono text-slate-400">
+            <label>Mode:</label>
+            <select id="searchMode" class="bg-slate-950 border border-slate-700 rounded-lg px-2.5 py-1 text-slate-200">
+              <option value="hybrid" selected>Hybrid (Lexical + Vector)</option>
+              <option value="lexical">Lexical (BM25)</option>
+              <option value="semantic">Semantic (Vector)</option>
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <div id="searchResults" class="space-y-4"></div>
+    </section>
+
+  </main>
+
+  <footer class="border-t border-slate-800 py-6 text-center text-xs text-slate-500 font-mono">
+    WhyCode — Evidence-Backed Codebase Archaeology & GenAI Diagnostics • Powered by Gemini & FastAPI
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
