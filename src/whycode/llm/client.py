@@ -24,13 +24,16 @@ class CachedLLM(BaseLLM):
         system: str | None = None,
         temperature: float = 0.0,
         response_schema: dict[str, Any] | None = None,
+        system_instruction: str | None = None,
+        **kwargs: Any,
     ) -> LLMResult:
         """Return cached data when possible; otherwise call and cache the provider."""
+        effective_system = system or system_instruction
         key = self.cache.make_key(
             provider=self.provider_name,
             model=self.model,
             prompt=prompt,
-            system=system,
+            system=effective_system,
             temperature=temperature,
             response_schema=response_schema,
         )
@@ -42,7 +45,7 @@ class CachedLLM(BaseLLM):
         logger.info("LLM cache miss for model %s", self.model)
         result = self.provider.generate(
             prompt=prompt,
-            system=system,
+            system=effective_system,
             temperature=temperature,
             response_schema=response_schema,
         )

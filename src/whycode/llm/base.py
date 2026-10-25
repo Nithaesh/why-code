@@ -26,6 +26,8 @@ class BaseLLM(ABC):
         system: str | None = None,
         temperature: float = 0.0,
         response_schema: dict[str, Any] | None = None,
+        system_instruction: str | None = None,
+        **kwargs: Any,
     ) -> LLMResult:
         """Generate a response using the requested prompt and parameters."""
         raise NotImplementedError
